@@ -8,7 +8,7 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "m4x-sourcing-db"
-database_id = "REMPLACER-PAR-VOTRE-DATABASE-ID"
+database_id = "9d576635-0194-427c-a925-aacd17e057f8"
 
 # Stockage des fichiers R2 : CV, dossiers, justificatifs (étape 4 du guide)
 [[r2_buckets]]
