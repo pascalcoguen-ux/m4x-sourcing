@@ -123,7 +123,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute)
 .step:before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
 .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink2);margin:0}
 .switch input{width:auto}
-.status,#langSel,#trbar{display:none!important}
+.status,#trbar{display:none!important}
 .acct{background:#fff;color:var(--navy);border:0;border-radius:7px;padding:6px 12px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
 .acct:hover{background:var(--acc2)}
 .lang{background:var(--navy2);color:#fff;border:1px solid #5cc3da;border-radius:7px;padding:5px 8px;font-size:13px;width:auto}
@@ -139,12 +139,12 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute)
 [dir=rtl] .spec-row{direction:rtl}
 @media(max-width:720px){
   .hwrap{padding:6px 12px 0;gap:4px 8px;flex-wrap:wrap;align-items:center}
-  .logo{flex:1;min-width:0;font-size:25px;gap:9px;letter-spacing:.2px;white-space:nowrap}
-  .logo svg{width:36px;height:36px}
-  .logo small{font-size:16px;padding:0 7px}
+  .logo{flex:1;min-width:0;font-size:19px;gap:9px;letter-spacing:.2px;white-space:nowrap}
+  .logo svg{width:32px;height:32px}
+  .logo small{font-size:13px;padding:0 5px}
   .brand .b2{font-size:13px;letter-spacing:4px;margin-top:4px}
-  #acctBtn{order:2;padding:5px 9px}
-  #langSel{order:2;font-size:13px;padding:4px 4px;max-width:74px}
+  #acctBtn{order:2;padding:5px 7px;font-size:12px}
+  #langSel{order:2;font-size:12px;padding:3px 2px;max-width:58px}
   .status{display:none}
   nav{order:3;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;margin:0 -12px;padding:0 8px 4px}
   nav::-webkit-scrollbar{display:none}
@@ -169,6 +169,7 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute)
 <main id="app"></main>
 <div id="modal"></div>
 
+<script src="/i18n.js"></script>
 <script>
 /* =========================================================
    M4X Sourcing 2.0 — prototype
@@ -181,7 +182,7 @@ const kindLabel = k => (ACCOUNT_KINDS.find(x=>x[0]===k)||[])[1]||'';
 const COUNTRIES = ['France','Belgique','Suisse','Luxembourg','Allemagne','Espagne','Italie','Portugal','Royaume-Uni','Pays-Bas','Pologne','Roumanie','Maroc','Algérie','Tunisie','Sénégal','Côte d\'Ivoire','Canada','États-Unis','Brésil','Émirats arabes unis','Arabie saoudite','Qatar','Inde','Chine','Singapour','Australie','Autre'];
 const ZONES = {'Europe':['France','Belgique','Suisse','Luxembourg','Allemagne','Espagne','Italie','Portugal','Royaume-Uni','Pays-Bas','Pologne','Roumanie'],'Afrique':['Maroc','Algérie','Tunisie','Sénégal','Côte d\'Ivoire'],'Amériques':['Canada','États-Unis','Brésil'],'Moyen-Orient':['Émirats arabes unis','Arabie saoudite','Qatar'],'Asie-Pacifique':['Inde','Chine','Singapour','Australie']};
 const zoneOf = c => Object.keys(ZONES).find(z=>ZONES[z].includes(c||'France'))||'Autre';
-const LANGS = [['fr','Français'],['en','English'],['es','Español'],['de','Deutsch'],['it','Italiano'],['pt','Português'],['nl','Nederlands'],['pl','Polski'],['ro','Română'],['ar','العربية'],['zh','中文'],['ja','日本語'],['hi','हिन्दी'],['ru','Русский'],['tr','Türkçe']];
+const LANGS = [['fr','Français'],['en','English'],['es','Español'],['de','Deutsch'],['it','Italiano'],['hi','हिन्दी']];
 const langName = c => (LANGS.find(l=>l[0]===c)||[c,c])[1];
 const YEAR = 365*864e5, MONTH = 30*864e5;
 
@@ -222,26 +223,33 @@ function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove());con
 let SAMPLE=null, ASSETS=null;
 let LANG='fr'; try{LANG=localStorage.getItem('m4x_lang')||'fr';}catch(e){}
 const TRC={}; // lang -> {fr: translated}
-function loadTrc(l){if(TRC[l])return TRC[l];try{TRC[l]=JSON.parse(localStorage.getItem('m4x_tr_'+l)||'{}');}catch(e){TRC[l]={};}return TRC[l];}
+function loadTrc(l){return (window.I18N&&window.I18N[l])||{};}
+/* Clés normalisées : nombres et mois remplacés par « # », réinsérés (mois traduits) à l'affichage */
+const MONTHS_FR=['janv.','févr.','mars','avr.','mai','juin','juil.','août','sept.','oct.','nov.','déc.'];
+const MONTHS={en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],es:['ene.','feb.','mar.','abr.','may.','jun.','jul.','ago.','sept.','oct.','nov.','dic.'],de:['Jan.','Feb.','März','Apr.','Mai','Juni','Juli','Aug.','Sept.','Okt.','Nov.','Dez.'],it:['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'],hi:['जन॰','फ़र॰','मार्च','अप्रैल','मई','जून','जुल॰','अग॰','सित॰','अक्तू॰','नव॰','दिस॰']};
+const TOK_RE=/(\d[\d\u202f\u00a0 .,:\/h]*\d|\d)|(?<!\p{L})(janv\.|févr\.|mars|avr\.|mai|juin|juil\.|août|sept\.|oct\.|nov\.|déc\.)(?!\p{L})/gu;
+function tKey(s){const v=[];const k=s.replace(TOK_RE,m=>{v.push(m);return '#';});return {k,v};}
+function tApply(tpl,v,l){let i=0;const conv=x=>{if(x==null)return '';const mi=MONTHS_FR.indexOf(x);return mi>=0&&MONTHS[l]?MONTHS[l][mi]:x;};return tpl.replace(/#(\d+)?/g,(m,n)=>conv(n?v[+n-1]:v[i++]));}
+function tLookup(s,l){const d=loadTrc(l);if(d[s]!=null)return d[s];const {k,v}=tKey(s);return d[k]!=null?tApply(d[k],v,l):null;}
+window.__missing=new Set();
 function saveTrc(l){try{localStorage.setItem('m4x_tr_'+l,JSON.stringify(TRC[l]));}catch(e){}}
-const tr = s => {if(LANG==='fr'||!s)return s;const c=loadTrc(LANG)[String(s).trim()];return c||s;};
+const tr = s => {if(LANG==='fr'||!s)return s;const c=tLookup(String(s).trim(),LANG);if(c==null&&window.__missing)window.__missing.add(tKey(String(s).trim()).k);return c!=null?c:s;};
 const hasWords = s => /[A-Za-zÀ-ÿ]{2,}/.test(s);
 let trBusy=false, trQueued=false, trFail=false;
-function textNodes(root){const out=[];const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;if(!p||p.closest('script,style,.notr,textarea,option.notr'))return NodeFilter.FILTER_REJECT;return hasWords(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});let n;while(n=w.nextNode())out.push(n);return out;}
+function textNodes(root){const out=[];const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;if(!p||p.closest('script,style,.notr,textarea,option'))return NodeFilter.FILTER_REJECT;return hasWords(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});let n;while(n=w.nextNode())out.push(n);return out;}
 function translateDom(){
   document.documentElement.lang=LANG; document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
   if(LANG==='fr')return;
-  const cache=loadTrc(LANG), missing=new Set();
+  const missing=window.__missing;
   const roots=[document.querySelector('header'),$('#app'),$('#modal')].filter(Boolean);
   for(const r of roots){
     for(const n of textNodes(r)){
       if(n.__fr==null)n.__fr=n.nodeValue; const k=n.__fr.trim(); if(!k)continue;
-      if(cache[k]){n.nodeValue=n.__fr.replace(k,cache[k]);}else missing.add(k);
+      const t=tLookup(k,LANG); if(t!=null){n.nodeValue=n.__fr.replace(k,t);}else missing.add(tKey(k).k);
     }
-    r.querySelectorAll('[placeholder],[title]').forEach(el=>{['placeholder','title'].forEach(a=>{const v=el.getAttribute(a);if(!v||!hasWords(v))return;if(el['__fr_'+a]==null)el['__fr_'+a]=v;const k=el['__fr_'+a];if(cache[k])el.setAttribute(a,cache[k]);else missing.add(k);});});
-    r.querySelectorAll('option:not(.notr)').forEach(el=>{if(el.__fr==null)el.__fr=el.textContent;const k=el.__fr.trim();if(!hasWords(k))return;if(cache[k])el.textContent=cache[k];else missing.add(k);});
+    r.querySelectorAll('[placeholder],[title]').forEach(el=>{['placeholder','title'].forEach(a=>{const v=el.getAttribute(a);if(!v||!hasWords(v))return;if(el['__fr_'+a]==null)el['__fr_'+a]=v;const k=el['__fr_'+a];const t=tLookup(k,LANG);if(t!=null)el.setAttribute(a,t);else missing.add(tKey(k).k);});});
+    r.querySelectorAll('option:not(.notr)').forEach(el=>{if(el.__fr==null)el.__fr=el.textContent;const k=el.__fr.trim();if(!hasWords(k))return;const t=tLookup(k,LANG);if(t!=null)el.textContent=t;else missing.add(tKey(k).k);});
   }
-  if(missing.size&&SAMPLE&&!trFail)fetchTr([...missing]);
 }
 async function fetchTr(list){
   if(trBusy){trQueued=true;return;}
@@ -266,9 +274,9 @@ ${JSON.stringify(chunk)}`;
 }
 function setTrBar(t){const b=$('#trbar');if(!b)return;b.innerHTML=t?`<div class="trbar">${esc(LANG==='fr'?t:(loadTrc(LANG)[t]||t))}</div>`:'';}
 function setLang(l){LANG=l;trFail=false;try{localStorage.setItem('m4x_lang',l);}catch(e){}
-  if(l!=='fr'&&!SAMPLE){toast('Traduction automatique indisponible dans cette vue.');}
+
   render();}
-function initLangSel(){const s=$('#langSel');const narrow=window.innerWidth<=720;s.innerHTML=LANGS.map(([c,n])=>`<option class="notr" value="${c}" ${c===LANG?'selected':''}>${narrow?'🌐 '+c.toUpperCase():c.toUpperCase()+' · '+n}</option>`).join('');s.onchange=()=>setLang(s.value);}
+function initLangSel(){const s=$('#langSel');const narrow=window.innerWidth<=720;s.innerHTML=LANGS.map(([c,n])=>`<option class="notr" value="${c}" ${c===LANG?'selected':''}>${narrow?c.toUpperCase():c.toUpperCase()+' · '+n}</option>`).join('');s.onchange=()=>setLang(s.value);}
 
 /* chat message translation: cached per message & language */
 const MTR={}; try{Object.assign(MTR,JSON.parse(localStorage.getItem('m4x_mtr')||'{}'));}catch(e){}
@@ -540,7 +548,7 @@ window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(VIEW
 document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);}});
 
 function renderNav(){
-  const ab=$('#acctBtn');if(ab){ab.textContent=AUTH?'👤 Mon compte':'Connexion';ab.onclick=()=>AUTH?go('compte'):authModal('login');}
+  const ab=$('#acctBtn');if(ab){ab.textContent=AUTH?'👤 '+tr('Mon compte'):tr('Connexion');ab.onclick=()=>AUTH?go('compte'):authModal('login');}
   const n=unread();
   $('#nav').innerHTML=Object.entries(VIEWS).filter(([k])=>k!=='legal'&&k!=='compte'&&(k!=='admin'||IS_OWNER)).map(([k,v])=>`<a href="#${k}" data-go="${k}" class="${view===k?'on':''}">${v}${k==='matchs'&&n?`<span class="badge-n">${n}</span>`:''}</a>`).join('');
 }
@@ -764,8 +772,8 @@ function vLegal(){
    <p><b>Transferts hors UE :</b> la plateforme étant mondiale, certains traitements (hébergement, traduction) peuvent impliquer des transferts encadrés par des clauses contractuelles types.</p>`};
   return `<h1>Informations légales</h1><p class="sub">Éditeur : ${E.name} · ${E.rcs}</p>
   <div class="tabs">${tab('ml','Mentions légales')}${tab('cgv','Conditions générales de vente')}${tab('cgu','Conditions d\'utilisation')}${tab('rgpd','Données personnelles')}</div>
-  <div class="card">${body[t]}</div>
-  <div class="note small">Textes rédigés comme base de travail : à faire relire par un juriste avant la mise en production.</div>`;
+  ${LANG!=='fr'?'<div class="note blue">Les documents juridiques sont disponibles en français uniquement ; la version française fait foi.</div>':''}
+  <div class="card ${LANG!=='fr'?'notr':''}" lang="fr">${body[t]}</div>`;
 }
 bind.legal=()=>document.querySelectorAll('[data-ltab]').forEach(b=>b.onclick=()=>{ui.legalTab=b.dataset.ltab;render();});
 
@@ -908,7 +916,7 @@ function vCand(){
    <div class="card">
      <div class="item-h"><div style="display:flex;gap:12px;align-items:center">${avatar(c,true)}<h2 style="margin:0">Mon profil</h2></div><button class="btn ghost sm" id="editC">Modifier / nouveau CV</button></div>
      ${c.photo?'':'<div class="note bad small">Photo portrait manquante : ajoutez-la via « Modifier ».</div>'}
-     <p style="margin:0 0 6px"><b>${esc(c.level)}</b> · ${esc(c.city)} · mobilité ${esc(c.mobility||'—')} · ${c.years?c.years+' ans d\'exp.':'expérience non précisée'}</p>
+     <p style="margin:0 0 6px"><b>${esc(c.level)}</b> · <span class="notr">${esc(c.city)}</span> · <span>mobilité</span> <span>${esc(c.mobility||'—')}</span> · <span>${c.years?c.years+' ans d\'exp.':'expérience non précisée'}</span></p>
      ${!ok?'<div class="note bad small">Profil et annonce de disponibilité <b>masqués</b> aux entreprises. Toutes vos données restent enregistrées et réapparaissent dès votre abonnement.</div>':''}
      <div>${specPills(c.primary,c.secondary)}</div>
      ${c.software&&c.software.length?`<p class="small" style="margin:8px 0 0"><span class="muted">Logiciels :</span> ${c.software.map(esc).join(', ')}</p>`:''}
@@ -1022,10 +1030,10 @@ function offerItem(o,c){
   const liked=l&&l.candLiked, matched=isMatch(l);
   return `<div class="item"><div class="item-h">
     <div style="flex:1;min-width:240px"><h3>${esc(o.title)} ${isDemo(o.id)?'<span class="pill demo">démo</span>':''}</h3>
-     <div class="small muted">${esc(comp.name||'Entreprise')}${compKind(comp)==='CAB'?' <span class="pill blue">cabinet'+(o.client?' — client : '+esc(o.client):'')+'</span>':''}${comp.verif==='ok'||isDemo(comp.id)?' <span class="pill ok">✔ vérifiée</span>':''} · ${esc(o.city||'')}${o.country&&o.country!=='France'?', '+esc(o.country):''} · ${esc(o.remote||'')} · début ${fmtD(o.start)} · ${o.duration?esc(o.duration)+' mois':'durée non précisée'}</div>
+     <div class="small muted"><span class="notr">${esc(comp.name||'Entreprise')}</span>${compKind(comp)==='CAB'?' <span class="pill blue"><span>cabinet</span>'+(o.client?' — <span>client :</span> <span class="notr">'+esc(o.client)+'</span>':'')+'</span>':''}${comp.verif==='ok'||isDemo(comp.id)?' <span class="pill ok">✔ vérifiée</span>':''} · <span class="notr">${esc(o.city||'')}</span>${o.country&&o.country!=='France'?', <span>'+esc(o.country)+'</span>':''} · <span>${esc(o.remote||'')}</span> · <span>début ${fmtD(o.start)}</span> · <span>${o.duration?esc(o.duration)+' mois':'durée non précisée'}</span></div>
      <div style="margin-top:6px">${specPills(o.specialty,o.secondary)}${(o.contract||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join('')}</div>
      ${o.description?`<p class="small" style="margin:8px 0 4px">${esc(o.description).slice(0,260)}${o.description.length>260?'…':''}</p>`:''}
-     <div class="small muted">Motif : ${esc(o.motif||'—')}${o.project?' · Projet : '+esc(o.project):''}${(o.software||[]).length?' · Logiciels : '+o.software.map(esc).join(', '):''}</div>
+     <div class="small muted"><span>Motif :</span> <span>${esc(o.motif||'—')}</span>${o.project?' · <span>Projet :</span> <span class="notr">'+esc(o.project)+'</span>':''}${(o.software||[]).length?' · <span>Logiciels :</span> <span class="notr">'+o.software.map(esc).join(', ')+'</span>':''}</div>
      ${comp.website?`<div class="small" style="margin-top:4px"><a href="${esc(comp.website)}" target="_blank" rel="noopener">${esc(comp.website)}</a></div>`:''}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">${sc!=null?scoreBox(sc):''}
@@ -1076,7 +1084,7 @@ function openCV(id){
   if(!p||!subOk(p))return toast('La consultation des CV est réservée aux entreprises abonnées');
   const pdf=docLink(c.cvAsset,'Ouvrir le CV original'), dc=docLink(c.dcAsset,'Ouvrir le dossier de compétences');
   modal(`<div class="item-h"><div style="display:flex;gap:12px;align-items:center">${avatar(c,isMatch(get('links',linkId(c.id,p.id))))}<div><h2 style="margin:0">CV — ${esc(c.name)}</h2>
-    <div class="small muted">${esc(c.level)} · ${c.years?c.years+' ans d\'exp.':'exp. n.c.'} · ${esc(c.city)}${c.country&&c.country!=='France'?', '+esc(c.country):''} · mobilité ${esc(c.mobility||'—')}</div>
+    <div class="small muted"><span>${esc(c.level)}</span> · <span>${c.years?c.years+' ans d\'exp.':'exp. n.c.'}</span> · <span class="notr">${esc(c.city)}</span>${c.country&&c.country!=='France'?', <span>'+esc(c.country)+'</span>':''} · <span>mobilité</span> <span>${esc(c.mobility||'—')}</span></div>
     <div style="margin-top:4px">${specPills(c.primary,c.secondary)}</div></div></div><button class="btn ghost sm" data-close>Fermer</button></div>
    <div class="small" style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">${pdf||(c.cvName?'<span class="muted">CV : '+esc(c.cvName)+' (texte ci-dessous)</span>':'')}${dc||(c.dcName?'<span class="muted">Dossier de compétences : '+esc(c.dcName)+'</span>':'')}</div>
    ${(c.software||[]).length||(c.norms||[]).length?`<div class="small" style="margin-top:8px">${(c.software||[]).length?'<b>Logiciels :</b> '+c.software.map(esc).join(', '):''}${(c.norms||[]).length?' · <b>Normes :</b> '+c.norms.map(esc).join(', '):''}${(c.sectors||[]).length?' · <b>Secteurs :</b> '+c.sectors.map(esc).join(', '):''}</div>`:''}
@@ -1123,7 +1131,7 @@ function candItem(c,p,offer){
   return `<div class="item"><div class="item-h">
    ${avatar(c,matched)}
    <div style="flex:1;min-width:240px"><h3>${matched?esc(c.name):esc(c.name.split(' ')[0])+' '+esc((c.name.split(' ')[1]||'').charAt(0))+'.'} ${isDemo(c.id)?'<span class="pill demo">démo</span>':''}</h3>
-    <div class="small muted">${esc(c.level)} · ${c.years?c.years+' ans d\'exp.':'exp. n.c.'} · ${esc(c.city)} · mobilité ${esc(c.mobility||'—')}</div>
+    <div class="small muted"><span>${esc(c.level)}</span> · <span>${c.years?c.years+' ans d\'exp.':'exp. n.c.'}</span> · <span class="notr">${esc(c.city)}</span> · <span>mobilité</span> <span>${esc(c.mobility||'—')}</span></div>
     <div style="margin-top:6px">${specPills(c.primary,c.secondary)}</div>
     <div class="small" style="margin-top:6px">${d.active!==false&&d.date?`<span class="pill ok">Dispo ${fmtD(d.date)}</span>`:'<span class="pill">Disponibilité non publiée</span>'}${(d.types||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join('')}${d.rate?`<span class="pill">${esc(d.rate)}</span>`:''}</div>
     ${(c.software||[]).length?`<div class="small muted" style="margin-top:4px">Logiciels : ${c.software.map(esc).join(', ')}</div>`:''}
@@ -1193,9 +1201,9 @@ function vComp(){
     return `<h1>${p?'Modifier l\'entreprise':'Inscription entreprise'}</h1><p class="sub">Bureaux d'études, ensembliers, exploitants, ESN d'ingénierie…</p>
     <div class="card" style="max-width:760px"><form id="compF">
      <label>Type de compte <span class="req">*</span></label>
-     <div class="chk" id="kindSel">${ACCOUNT_KINDS.map(([k,v,pr])=>`<label><input type="radio" name="kind" value="${k}" ${(b.kind||compKind(b.legal?b:{legal:'SAS'}))===k?'checked':''}>${v} — ${eur(pr)}/an</label>`).join('')}</div>
+     <div class="chk" id="kindSel">${ACCOUNT_KINDS.map(([k,v,pr])=>`<label><input type="radio" name="kind" value="${k}" ${(b.kind||'ENT')===k?'checked':''}>${v} — ${eur(pr)}/an</label>`).join('')}</div>
      <div class="row"><div><label>Raison sociale <span class="req">*</span></label><input name="name" required value="${esc(b.name||'')}"></div>
-     <div><label>Forme juridique <span class="req">*</span></label><select name="legal" id="legalSel">${LEGAL.map(([k,v])=>`<option value="${k}" ${b.legal===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
+     <div><label>Forme juridique <span class="req">*</span></label><select name="legal" id="legalSel">${LEGAL.map(([k,v])=>`<option value="${k}" ${(b.legal||'SAS')===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
      <div class="row"><div><label>Pays <span class="req">*</span></label><select name="country" id="ctySel">${COUNTRIES.map(x=>`<option ${(b.country||'France')===x?'selected':''}>${x}</option>`).join('')}</select></div>
      <div><label id="regLbl">SIRET <span class="req">*</span></label><input name="siret" required value="${esc(b.siret||'')}" placeholder="14 chiffres"></div></div>
      <label>Site internet <span class="req">*</span></label><input name="website" required value="${esc(b.website||'')}" placeholder="https://www.votre-entreprise.fr">
@@ -1222,7 +1230,7 @@ function vComp(){
   return `<h1>${esc(p.name)}</h1><p class="sub"><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website)}</a> · ${esc(p.city)} · SIRET <span class="mono">${esc(p.siret)}</span></p>
   ${!ok?`<div class="note bad">${isTrial(p)?'Votre période gratuite est terminée depuis le '+fmtD(exp)+' : vos offres sont hors ligne et les fonctions du site sont désactivées.':'Abonnement '+(exp?'expiré le '+fmtD(exp):'inactif')+'.'} <button class="btn sm acc" id="renewC">Prendre un abonnement d'un an (${eur(price)})</button></div>`:isTrial(p)?`<div class="note ${dl<=3?'bad':'ok'}">Compte gratuit — <b>${esc(freeLabel(p))}</b> — jusqu'au ${fmtD(exp)}${dl<=3?` — <b>plus que ${dl} jour(s)</b> : sans abonnement, vos offres seront retirées et le site deviendra inutilisable`:''}. <button class="btn sm ${dl<=3?'acc':'ghost'}" id="renewC">S'abonner dès maintenant (${eur(price)}/an, à partir du ${fmtD(exp)})</button></div>`:dl<=30?`<div class="note">Abonnement : expire dans ${dl} jour(s), le ${fmtD(exp)}, sans reconduction automatique. <button class="btn sm acc" id="renewC">Renouveler (${eur(price)})</button></div>`:''}
   <div class="grid g3">
-   <div class="card"><h3>Abonnement</h3>${ok?`<span class="pill ok">${isTrial(p)?esc(freeLabel(p)):'actif'}</span> jusqu'au ${fmtD(exp)}`:'<span class="pill bad">inactif</span>'}<p class="small muted">${esc(kindLabel(compKind(p)))} : ${eur(compPrice(p))}/an</p><p class="small">Justificatifs : ${verifPill(p)}</p><p class="small">${Object.entries(p.docs||{}).map(([k,d])=>docLink(d,DOCN[k])||esc(DOCN[k]+' ('+d.name+')')).join('<br>')||'<span class="muted">aucun</span>'}</p><button class="btn ghost sm" id="editP">Modifier les informations</button></div>
+   <div class="card"><h3>Abonnement</h3>${ok?`<span class="pill ok">${isTrial(p)?esc(freeLabel(p)):'actif'}</span> jusqu'au ${fmtD(exp)}`:'<span class="pill bad">inactif</span>'}<p class="small muted"><span>${esc(kindLabel(compKind(p)))}</span> : <span>${eur(compPrice(p))}/an</span></p><p class="small">Justificatifs : ${verifPill(p)}</p><p class="small">${Object.entries(p.docs||{}).map(([k,d])=>docLink(d,DOCN[k])||esc(DOCN[k]+' ('+d.name+')')).join('<br>')||'<span class="muted">aucun</span>'}</p><button class="btn ghost sm" id="editP">Modifier les informations</button></div>
    <div class="card"><h3>Candidats intéressés</h3><div class="kpi">${incoming.length}</div><div class="kpi-l">en attente de votre réponse</div></div>
    <div class="card"><h3>Offres en ligne</h3><div class="kpi">${offers.filter(offerOn).length}</div><div class="kpi-l">sur ${offers.length} publiée(s)</div></div>
   </div>
@@ -1267,14 +1275,16 @@ bind.entreprise=()=>{
     ui.docFiles=ui.docFiles||{};
     cf.querySelectorAll('[data-doc]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>20*1048576){inp.value='';return toast('Fichier trop lourd (20 Mo max)');}ui.docFiles[inp.dataset.doc]=f;});
     const kind=()=>(cf.querySelector('[name=kind]:checked')||{}).value||'ENT';
-    const upd=()=>{
-      if(isIndiv(ls.value)&&kind()==='ENT')cf.querySelector('[name=kind][value=EI]').checked=true;
+    const upd=(src)=>{
+      if(src==='legal'&&isIndiv(ls.value)&&kind()==='ENT')cf.querySelector('[name=kind][value=EI]').checked=true;
+      if(src==='kind'&&kind()==='ENT'&&isIndiv(ls.value))ls.value='SAS';
+      if(src==='kind'&&kind()==='EI'&&!isIndiv(ls.value))ls.value='EI';
       $('#cabDoc').style.display=kind()==='CAB'?'':'none';
       const fr=cs.value==='France';$('#regLbl').innerHTML=(fr?'SIRET':'N° d\'immatriculation (registre du commerce, TVA, EIN…)')+' <span class="req">*</span>';cf.siret.placeholder=fr?'14 chiffres':'Numéro officiel';
-      if(pn){const pr=compPrice({kind:kind()});if(promoOpen('comps')){pn.className='note ok';pn.innerHTML=`<b>Offre premiers inscrits :</b> ${promoCfg('comps').months} mois gratuits à compter de l'inscription — plus que <b>${promoLeft('comps')} place(s)</b> sur ${promoCfg('comps').cap}, jusqu'au ${fmtD(promoEndTs())}. Ensuite : ${eur(pr)}/an (${esc(kindLabel(kind()))}), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else if(trialActive()){pn.className='note ok';pn.innerHTML=`<b>Essai gratuit :</b> compte et annonces offerts jusqu'au ${fmtD(trialEndTs())}, période prolongée aussi longtemps que nécessaire pendant le démarrage du site. Ensuite : ${eur(pr)}/an (${esc(kindLabel(kind()))}), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else{pn.innerHTML=`Abonnement <b>${eur(pr)} pour un an</b> (${esc(kindLabel(kind()))}), sans reconduction automatique.`;cb.textContent=`Continuer vers le paiement (${eur(pr)})`;}}
+      if(pn){const pr=compPrice({kind:kind()});if(promoOpen('comps')){pn.className='note ok';pn.innerHTML=`<b>Offre premiers inscrits :</b> ${promoCfg('comps').months} mois gratuits à compter de l'inscription — plus que <b>${promoLeft('comps')} place(s)</b> sur ${promoCfg('comps').cap}, jusqu'au ${fmtD(promoEndTs())}. Ensuite : ${eur(pr)}/an (<span>${esc(kindLabel(kind()))}</span>), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else if(trialActive()){pn.className='note ok';pn.innerHTML=`<b>Essai gratuit :</b> compte et annonces offerts jusqu'au ${fmtD(trialEndTs())}, période prolongée aussi longtemps que nécessaire pendant le démarrage du site. Ensuite : ${eur(pr)}/an (<span>${esc(kindLabel(kind()))}</span>), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else{pn.innerHTML=`Abonnement <b>${eur(pr)} pour un an</b> (<span>${esc(kindLabel(kind()))}</span>), sans reconduction automatique.`;cb.textContent=`Continuer vers le paiement (${eur(pr)})`;}}
       translateDom();
     };
-    ls.onchange=upd;cs.onchange=upd;cf.querySelectorAll('[name=kind]').forEach(r=>r.onchange=upd);upd();
+    ls.onchange=()=>upd('legal');cs.onchange=()=>upd('country');cf.querySelectorAll('[name=kind]').forEach(r=>r.onchange=()=>upd('kind'));upd();
     const cc=$('#cancelComp');if(cc)cc.onclick=()=>{ui.editComp=false;render();};
     cf.onsubmit=e=>{e.preventDefault();const f=new FormData(cf);const ex=myComp();
       const country=f.get('country'), siret=f.get('siret').replace(/\s/g,''), web=f.get('website').trim(), k=kind();
@@ -1334,7 +1344,7 @@ const lastAt = l => Math.max(l.candAt||0,l.compAt||0,...all('msgs').filter(m=>m.
 function mySide(l){const c=myCand();return c&&l.candId===c.id?'cand':'comp';}
 function other(l){
   if(mySide(l)==='cand'){const p=get('comps',l.compId)||{};const o=get('offers',l.offerId);return {id:p.id,name:p.name||'Entreprise',sub:o?o.title:(p.city||''),web:p.website,email:p.email,contact:p.contact};}
-  const c=get('cands',l.candId)||{};return {id:c.id,cand:c,name:c.name||'Candidat',sub:`${c.level||''} · ${specName(c.primary)}`,email:c.email,phone:c.phone};
+  const c=get('cands',l.candId)||{};return {id:c.id,cand:c,name:c.name||'Candidat',sub:`${tr(c.level||'')} · ${tr(specName(c.primary))}`,email:c.email,phone:c.phone};
 }
 function chatPane(){
   const l=get('links',ui.chat);if(!l)return '';
