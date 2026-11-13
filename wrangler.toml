@@ -1,0 +1,24 @@
+# Configuration Cloudflare Pages — M4X Sourcing 2.0
+name = "m4x-sourcing"
+compatibility_date = "2026-11-01"
+pages_build_output_dir = "public"
+
+# Base de données D1 « m4x-sourcing-db » (région Europe de l'Ouest).
+# ⚠️ Remplacez database_id par l'identifiant affiché dans Cloudflare (étape 3 du guide).
+[[d1_databases]]
+binding = "DB"
+database_name = "m4x-sourcing-db"
+database_id = "REMPLACER-PAR-VOTRE-DATABASE-ID"
+
+# Stockage des fichiers R2 : CV, dossiers, justificatifs (étape 4 du guide)
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "m4x-sourcing-files"
+
+[vars]
+# Expéditeur des e-mails « mot de passe oublié » (utilisé seulement si le secret RESEND_API_KEY est défini)
+MAIL_FROM = "M4X Sourcing <contact@m4xdesign.business>"
+
+# Secrets à définir dans Cloudflare (Paramètres > Variables et secrets), PAS dans ce fichier :
+#   ADMIN_EMAILS   = votre adresse e-mail d'administrateur (plusieurs adresses : séparées par des virgules)
+#   RESEND_API_KEY = clé Resend (facultatif, pour les e-mails de mot de passe oublié)

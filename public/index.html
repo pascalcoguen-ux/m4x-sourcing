@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M4X Sourcing 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<style>
+:root{
+  --ink:#0f1b2d; --ink2:#3b4a5e; --mute:#6b7a8f; --line:#dde3ea; --bg:#f4f6f9; --card:#fff;
+  --navy:#06789a; --navy2:#0b8fb3; --acc:#e8701a; --acc2:#fff1e6; --ok:#1f8a4c; --okbg:#e6f5ec;
+  --warn:#b7791f; --warnbg:#fdf5e3; --bad:#c0392b; --badbg:#fbeaea; --blue:#2463b5; --bluebg:#e8f0fb;
+  --r:10px; --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 'IBM Plex Sans',system-ui,sans-serif}
+a{color:var(--blue)}
+header{background:var(--navy);color:#fff;position:sticky;top:0;z-index:20;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.hwrap{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;padding:10px 18px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;letter-spacing:.3px;cursor:pointer}
+.logo svg{flex:none}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand .b2{font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:#ffd3ad;margin-top:3px}
+.logo small{font-family:var(--mono);font-weight:600;color:var(--acc);font-size:13px;border:1px solid var(--acc);padding:0 6px;border-radius:4px}
+nav{display:flex;gap:2px;flex-wrap:wrap;flex:1}
+nav a{color:#e3f6fa;text-decoration:none;padding:6px 9px;border-radius:7px;font-size:13.5px;font-weight:500;position:relative}
+nav a:hover{background:var(--navy2);color:#fff}
+nav a.on{background:var(--navy2);color:#fff;box-shadow:inset 0 -2px 0 var(--acc)}
+.badge-n{background:var(--acc);color:#fff;border-radius:9px;font-size:11px;padding:0 6px;margin-left:4px;font-weight:700}
+.status{font-size:12px;color:#9fb0c6;font-family:var(--mono)}
+main{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
+h1{font-size:26px;margin:0 0 6px} h2{font-size:20px;margin:0 0 12px} h3{font-size:16px;margin:0 0 8px}
+.sub{color:var(--mute);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+label{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:10px 0 4px}
+label .req{color:var(--acc)}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid #c7d0db;border-radius:7px;font:inherit;background:#fff;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid #f5b77f;border-color:var(--acc)}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+.chk{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.chk label{display:flex;align-items:center;gap:6px;margin:0;font-weight:500;border:1px solid var(--line);padding:6px 10px;border-radius:7px;cursor:pointer;background:#fafbfc}
+.chk input{width:auto;margin:0}
+.btn{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:7px;padding:9px 15px;font:inherit;font-weight:600;cursor:pointer;background:var(--navy);color:#fff}
+.btn:hover{background:var(--navy2)}
+.btn.acc{background:var(--acc)}.btn.acc:hover{background:#cf5f0e}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid #c7d0db}.btn.ghost:hover{background:#f1f4f8}
+.btn.ok{background:var(--ok)}.btn.bad{background:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;background:#eef1f5;color:var(--ink2);margin:2px 4px 2px 0;white-space:nowrap}
+.pill.p{background:var(--navy);color:#fff}
+.pill.acc{background:var(--acc2);color:#a94c0a}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.pill.warn{background:var(--warnbg);color:var(--warn)}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.pill.blue{background:var(--bluebg);color:var(--blue)}
+.pill.demo{background:#f0e9fb;color:#6b3fb0}
+.mono{font-family:var(--mono)}
+.muted{color:var(--mute)} .small{font-size:13px}
+.note{border-left:3px solid var(--acc);background:var(--acc2);padding:10px 14px;border-radius:0 8px 8px 0;font-size:14px;margin:10px 0}
+.note.blue{border-color:var(--blue);background:var(--bluebg)}
+.note.ok{border-color:var(--ok);background:var(--okbg)}
+.note.bad{border-color:var(--bad);background:var(--badbg)}
+.hero{background:linear-gradient(135deg,#06789a 0%,#17afc9 100%);color:#fff;border-radius:14px;padding:34px 30px;margin-bottom:20px;position:relative;overflow:hidden}
+.hero h1{font-size:32px;line-height:1.15;max-width:700px}
+.hero p{color:#eefafd;max-width:640px;font-size:16px}
+.hero .grid-bg{position:absolute;inset:0;opacity:.09;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:28px 28px;pointer-events:none}
+.hero .btn.ghost{background:transparent;color:#fff;border-color:#b5e6f0}
+.kpi{font-size:28px;font-weight:700;font-family:var(--mono)}
+.kpi-l{font-size:13px;color:var(--mute)}
+.price{font-size:30px;font-weight:700;font-family:var(--mono);color:var(--navy)}
+.price small{font-size:14px;color:var(--mute);font-weight:500}
+.item{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;background:#fff;margin-bottom:12px}
+.item-h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.item-h h3{margin:0}
+.score{font-family:var(--mono);font-weight:700;font-size:20px;min-width:70px;text-align:center;border-radius:9px;padding:6px 8px;line-height:1.1}
+.score small{display:block;font-size:10px;font-weight:600;letter-spacing:.5px}
+.sc-hi{background:var(--okbg);color:var(--ok)}.sc-mid{background:var(--warnbg);color:var(--warn)}.sc-lo{background:#eef1f5;color:var(--mute)}
+.bar{height:8px;background:#eef1f5;border-radius:5px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--acc)}
+.bar.p>i{background:var(--navy)}
+.spec-row{display:grid;grid-template-columns:190px 1fr 46px;gap:10px;align-items:center;font-size:13px;margin:5px 0}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:16px;flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:9px 14px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer;border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ink);border-color:var(--acc)}
+.drop{border:2px dashed #b9c4d2;border-radius:var(--r);padding:22px;text-align:center;background:#fafbfd;cursor:pointer}
+.drop.over{border-color:var(--acc);background:var(--acc2)}
+.chat{display:grid;grid-template-columns:300px 1fr;gap:0;border:1px solid var(--line);border-radius:var(--r);background:#fff;min-height:520px;overflow:hidden}
+.chat-l{border-right:1px solid var(--line);overflow:auto;max-height:620px}
+.chat-li{padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+.chat-li:hover{background:#f6f8fb}.chat-li.on{background:var(--acc2)}
+.chat-r{display:flex;flex-direction:column}
+.chat-h{padding:12px 16px;border-bottom:1px solid var(--line)}
+.chat-m{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px;max-height:470px;background:#f8fafc}
+.msg{max-width:72%;padding:8px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);font-size:14px;white-space:pre-wrap;word-wrap:break-word}
+.msg.me{align-self:flex-end;background:var(--navy);color:#fff;border-color:var(--navy)}
+.msg .t{display:block;font-size:11px;opacity:.6;margin-top:3px}
+.msg.sys{align-self:center;background:var(--acc2);border-color:#f3c9a5;font-size:13px;max-width:90%;text-align:center}
+.chat-f{display:flex;gap:8px;padding:10px;border-top:1px solid var(--line)}
+.modal-bg{position:fixed;inset:0;background:rgba(15,27,45,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+.modal.wide{max-width:900px}
+.cvtext{white-space:pre-wrap;font:13.5px/1.55 'IBM Plex Sans',sans-serif;background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:16px;max-height:58vh;overflow:auto;margin-top:10px}
+.modal{background:#fff;border-radius:14px;max-width:520px;width:100%;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:90vh;overflow:auto}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:9px;z-index:60;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+td.mono{white-space:nowrap}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute)}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.filters>div{min-width:160px;flex:1}
+.empty{text-align:center;color:var(--mute);padding:30px}
+.steps{counter-reset:s;display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.step{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:14px 16px 14px 52px;position:relative}
+.step:before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+.switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink2);margin:0}
+.switch input{width:auto}
+.status,#langSel,#trbar{display:none!important}
+.acct{background:#fff;color:var(--navy);border:0;border-radius:7px;padding:6px 12px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+.acct:hover{background:var(--acc2)}
+.lang{background:var(--navy2);color:#fff;border:1px solid #5cc3da;border-radius:7px;padding:5px 8px;font-size:13px;width:auto}
+.tr-o{display:block;font-size:11px;opacity:.75;margin-top:4px;cursor:pointer;text-decoration:underline}
+.msg .orig{display:block;font-size:12px;opacity:.7;border-top:1px dashed rgba(127,127,127,.4);margin-top:5px;padding-top:4px}
+.avatar{width:72px;height:96px;border-radius:8px;object-fit:cover;background:#e3eef2;flex:none;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--navy);font-weight:700;font-size:22px;overflow:hidden}
+.avatar.sm{width:42px;height:56px;font-size:15px;border-radius:6px}
+.avatar.lock{background:repeating-linear-gradient(135deg,#eef3f6,#eef3f6 6px,#e4ecf1 6px,#e4ecf1 12px);color:#8aa2b3;font-size:18px}
+.photo-box{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fafbfc;margin-top:4px}
+.doc{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fafbfc;margin-top:4px;font-size:13px}
+.doc input[type=file]{border:0;padding:0;background:none}
+.trbar{background:var(--bluebg);border-bottom:1px solid #c8d9f0;font-size:13px;padding:6px 18px;text-align:center}
+[dir=rtl] .spec-row{direction:rtl}
+@media(max-width:720px){
+  .hwrap{padding:6px 12px 0;gap:4px 8px;flex-wrap:wrap;align-items:center}
+  .logo{flex:1;min-width:0;font-size:25px;gap:9px;letter-spacing:.2px;white-space:nowrap}
+  .logo svg{width:36px;height:36px}
+  .logo small{font-size:16px;padding:0 7px}
+  .brand .b2{font-size:13px;letter-spacing:4px;margin-top:4px}
+  #acctBtn{order:2;padding:5px 9px}
+  #langSel{order:2;font-size:13px;padding:4px 4px;max-width:74px}
+  .status{display:none}
+  nav{order:3;flex:0 0 100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;margin:0 -12px;padding:0 8px 4px}
+  nav::-webkit-scrollbar{display:none}
+  nav{-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+  nav a{white-space:nowrap;padding:6px 10px;font-size:13px}
+  main{padding:14px 12px 50px}
+  .hero{padding:22px 18px}
+.chat{grid-template-columns:1fr}.chat-l{max-height:200px;border-right:0;border-bottom:1px solid var(--line)}.spec-row{grid-template-columns:120px 1fr 40px}.hero h1{font-size:25px}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+  <div class="logo" data-go="accueil">
+    <svg width="30" height="30" viewBox="0 0 30 30"><rect width="30" height="30" rx="7" fill="#e8701a"/><path d="M6 22V8l5 7 4-7 4 7 5-7v14" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/></svg>
+    <span class="brand"><span class="b1">M4X Sourcing <small>2.0</small></span><span class="b2">Ingénierie</span></span>
+  </div>
+  <nav id="nav"></nav>
+  <select id="langSel" class="lang notr" title="Langue / Language"></select>
+  <button id="acctBtn" class="acct notr">Connexion</button>
+  <span class="status" id="status">chargement…</span>
+</div><div id="trbar"></div></header>
+<main id="app"></main>
+<div id="modal"></div>
+
+<script>
+/* =========================================================
+   M4X Sourcing 2.0 — prototype
+   ========================================================= */
+const PRICES = { cand: 20, comp: 500, compEI: 100, cabinet: 250, offer: 10 };
+const ACCOUNT_KINDS = [['ENT','Entreprise',500],['EI','Entreprise individuelle / micro-entreprise',100],['CAB','Cabinet de recrutement',250]];
+const compKind = p => p.kind || (isIndiv(p.legal)?'EI':'ENT');
+const compPrice = p => ({ENT:PRICES.comp,EI:PRICES.compEI,CAB:PRICES.cabinet})[compKind(p)];
+const kindLabel = k => (ACCOUNT_KINDS.find(x=>x[0]===k)||[])[1]||'';
+const COUNTRIES = ['France','Belgique','Suisse','Luxembourg','Allemagne','Espagne','Italie','Portugal','Royaume-Uni','Pays-Bas','Pologne','Roumanie','Maroc','Algérie','Tunisie','Sénégal','Côte d\'Ivoire','Canada','États-Unis','Brésil','Émirats arabes unis','Arabie saoudite','Qatar','Inde','Chine','Singapour','Australie','Autre'];
+const ZONES = {'Europe':['France','Belgique','Suisse','Luxembourg','Allemagne','Espagne','Italie','Portugal','Royaume-Uni','Pays-Bas','Pologne','Roumanie'],'Afrique':['Maroc','Algérie','Tunisie','Sénégal','Côte d\'Ivoire'],'Amériques':['Canada','États-Unis','Brésil'],'Moyen-Orient':['Émirats arabes unis','Arabie saoudite','Qatar'],'Asie-Pacifique':['Inde','Chine','Singapour','Australie']};
+const zoneOf = c => Object.keys(ZONES).find(z=>ZONES[z].includes(c||'France'))||'Autre';
+const LANGS = [['fr','Français'],['en','English'],['es','Español'],['de','Deutsch'],['it','Italiano'],['pt','Português'],['nl','Nederlands'],['pl','Polski'],['ro','Română'],['ar','العربية'],['zh','中文'],['ja','日本語'],['hi','हिन्दी'],['ru','Русский'],['tr','Türkçe']];
+const langName = c => (LANGS.find(l=>l[0]===c)||[c,c])[1];
+const YEAR = 365*864e5, MONTH = 30*864e5;
+
+const SPECS = {
+  TUY:{n:'Tuyauterie',core:true,kw:{'tuyauterie':4,'tuyauteur':4,'piping':4,'isometrique':3,'isometric':3,'iso ':1,'pdms':3,'e3d':3,'everything3d':3,'autoplant':3,'plant 3d':3,'caesar':3,'autopipe':3,'rohr2':3,'b31.3':4,'b31.1':4,'en 13480':4,'en13480':4,'rcc-m':2,'supportage':3,'supports de tuyauterie':4,'pipe support':3,'flexibilite':3,'stress analysis':3,'analyse de flexibilite':4,'p&id':2,'pid':1,'robinetterie':2,'vanne':1,'bride':1,'piquage':2,'line list':2,'spec tuyauterie':3,'classe de tuyauterie':3,'calorifuge':1,'soudure':1,'cheminement':2,'routing':2}},
+  STR:{n:'Structures & charpente',core:true,kw:{'charpente':4,'charpentier':3,'structure metallique':4,'structures metalliques':4,'steel structure':4,'structural':3,'eurocode 3':4,'eurocode':2,'ec3':3,'cm66':3,'nv65':2,'tekla':4,'advance steel':4,'robot structural':4,'robot':1,'scia':3,'staad':3,'poutre':2,'portique':2,'assemblage':1,'platelage':2,'passerelle':1,'racks':1,'pipe rack':2,'massif':1,'descente de charges':3,'dimensionnement des structures':4,'ossature':2,'genie civil metallique':3}},
+  MEC:{n:'Mécanique / conception',core:true,kw:{'conception mecanique':4,'mecanique':2,'mechanical design':4,'solidworks':4,'catia':4,'creo':3,'inventor':3,'topsolid':3,'rdm':2,'resistance des materiaux':3,'elements finis':3,'ansys':3,'fea':2,'abaqus':3,'machine speciale':3,'machines speciales':3,'mecanisme':2,'cotation':2,'gps':1,'tolerancement':2,'chaudronnerie':2,'equipement':1,'reservoir':2,'echangeur':2,'appareil a pression':3,'appareils a pression':3,'codap':3,'asme viii':3,'en 13445':3,'desp':2,'pv elite':3,'outillage':2}},
+  IG:{n:'Installation générale',core:true,kw:{'installation generale':5,'implantation':3,'plot plan':4,'layout':3,'plant layout':4,'maquette 3d':3,'navisworks':3,'sp3d':3,'smartplant':3,'smart 3d':3,'synthese':2,'integration':2,'encombrement':2,'revue de maquette':3,'model review':3,'clash':2,'arrangement':2,'equipment layout':3,'general arrangement':3,'local':1,'reservations':2,'interfaces':1,'batiment industriel':2}},
+  CHA:{n:'Chaudronnerie',core:false,kw:{'chaudronnerie':3,'chaudronnier':3,'tolerie':2,'mecano-soudure':2}},
+  GC:{n:'Génie civil',core:false,kw:{'genie civil':4,'beton arme':4,'eurocode 2':3,'ferraillage':3,'fondations':2,'revit':1}},
+  EI:{n:'Électricité / instrumentation',core:false,kw:{'electricite':3,'electrique':2,'instrumentation':4,'automatisme':3,'see electrical':3,'cablage':2,'hta':2,'bt ':1}},
+  CVC:{n:'CVC / fluides',core:false,kw:{'cvc':4,'hvac':4,'ventilation':3,'climatisation':3,'plomberie':2,'fluides':2}},
+  PRO:{n:'Procédés',core:false,kw:{'procede':3,'process engineer':4,'genie des procedes':4,'pfd':3,'bilan matiere':3,'hysys':3}}
+};
+const CORE = Object.keys(SPECS).filter(k=>SPECS[k].core);
+const SOFTS = ['PDMS','E3D','SP3D','SmartPlant','AutoCAD','AutoCAD Plant 3D','AutoPlant','Caesar II','AutoPIPE','Rohr2','Navisworks','SolidWorks','CATIA','Creo','Inventor','TopSolid','Tekla','Advance Steel','Robot Structural','SCIA','STAAD','ANSYS','Abaqus','PV Elite','Revit','MicroStation','Excel/VBA','Python'];
+const SECTORS = {'Nucléaire':['nucleaire','epr','edf','cea','orano','framatome','centrale'],'Oil & Gas':['oil','gas','petrol','raffinerie','refinery','offshore','onshore','total'],'Chimie / pétrochimie':['chimie','petrochimie','chemical'],'Pharma':['pharma','pharmaceutique'],'Agroalimentaire':['agroalimentaire','agro'],'Énergie':['energie','thermique','hydrogene','biomasse','eolien'],'Défense / naval':['defense','naval','dcns','sous-marin'],'Ferroviaire':['ferroviaire','sncf','alstom'],'Aéronautique':['aeronautique','airbus','safran']};
+const NORMS = ['ASME B31.3','ASME B31.1','EN 13480','RCC-M','Eurocode 3','Eurocode 2','CODAP','ASME VIII','EN 13445','DESP','API 650','CM66'];
+const CONTRACTS = ['CDI','CDD','Freelance','Portage salarial'];
+const MOTIFS = ['Nouveau projet / affaire','Surcroît d\'activité','Remplacement','Compétence ponctuelle','Création de poste (développement)'];
+const LEGAL = [['EI','Entreprise individuelle (EI)'],['MICRO','Micro-entreprise'],['EURL','EURL'],['SASU','SASU'],['SARL','SARL'],['SAS','SAS'],['SA','SA'],['AUTRE','Autre']];
+const isIndiv = l => l==='EI'||l==='MICRO';
+
+/* ---------- utilities ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+const uid = p => p+'-'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const fmtD = t => t? new Date(t).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const fmtT = t => new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const daysLeft = t => Math.ceil((t-Date.now())/864e5);
+const eur = n => n.toLocaleString('fr-FR')+' €';
+function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast';d.textContent=tr(m);document.body.appendChild(d);setTimeout(()=>d.remove(),2800);}
+
+/* =========================================================
+   Automatic translation (site + chat) through Claude
+   ========================================================= */
+let SAMPLE=null, ASSETS=null;
+let LANG='fr'; try{LANG=localStorage.getItem('m4x_lang')||'fr';}catch(e){}
+const TRC={}; // lang -> {fr: translated}
+function loadTrc(l){if(TRC[l])return TRC[l];try{TRC[l]=JSON.parse(localStorage.getItem('m4x_tr_'+l)||'{}');}catch(e){TRC[l]={};}return TRC[l];}
+function saveTrc(l){try{localStorage.setItem('m4x_tr_'+l,JSON.stringify(TRC[l]));}catch(e){}}
+const tr = s => {if(LANG==='fr'||!s)return s;const c=loadTrc(LANG)[String(s).trim()];return c||s;};
+const hasWords = s => /[A-Za-zÀ-ÿ]{2,}/.test(s);
+let trBusy=false, trQueued=false, trFail=false;
+function textNodes(root){const out=[];const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{const p=n.parentElement;if(!p||p.closest('script,style,.notr,textarea,option.notr'))return NodeFilter.FILTER_REJECT;return hasWords(n.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;}});let n;while(n=w.nextNode())out.push(n);return out;}
+function translateDom(){
+  document.documentElement.lang=LANG; document.documentElement.dir=LANG==='ar'?'rtl':'ltr';
+  if(LANG==='fr')return;
+  const cache=loadTrc(LANG), missing=new Set();
+  const roots=[document.querySelector('header'),$('#app'),$('#modal')].filter(Boolean);
+  for(const r of roots){
+    for(const n of textNodes(r)){
+      if(n.__fr==null)n.__fr=n.nodeValue; const k=n.__fr.trim(); if(!k)continue;
+      if(cache[k]){n.nodeValue=n.__fr.replace(k,cache[k]);}else missing.add(k);
+    }
+    r.querySelectorAll('[placeholder],[title]').forEach(el=>{['placeholder','title'].forEach(a=>{const v=el.getAttribute(a);if(!v||!hasWords(v))return;if(el['__fr_'+a]==null)el['__fr_'+a]=v;const k=el['__fr_'+a];if(cache[k])el.setAttribute(a,cache[k]);else missing.add(k);});});
+    r.querySelectorAll('option:not(.notr)').forEach(el=>{if(el.__fr==null)el.__fr=el.textContent;const k=el.__fr.trim();if(!hasWords(k))return;if(cache[k])el.textContent=cache[k];else missing.add(k);});
+  }
+  if(missing.size&&SAMPLE&&!trFail)fetchTr([...missing]);
+}
+async function fetchTr(list){
+  if(trBusy){trQueued=true;return;}
+  trBusy=true; setTrBar(`Traduction automatique en ${langName(LANG)}…`);
+  const lang=LANG, cache=loadTrc(lang);
+  try{
+    for(let i=0;i<list.length;i+=60){
+      const chunk=list.slice(i,i+60).filter(k=>!cache[k]); if(!chunk.length)continue;
+      const prompt=`You translate the user interface of an engineering recruitment website (piping, steel structures, mechanical design, plant layout) from French into ${langName(lang)} (language code "${lang}").
+Rules: translate each string faithfully and concisely as UI text; keep numbers, prices, currency symbols, dates, e-mail addresses, URLs, company names, person names, software names (PDMS, E3D, Caesar II…), standards (ASME, Eurocode…) and the brand "M4X Sourcing" unchanged; keep leading/trailing punctuation.
+Return ONLY a JSON array of ${chunk.length} strings, same order.
+Strings:
+${JSON.stringify(chunk)}`;
+      const res=await SAMPLE.json(prompt,{modelTier:'quick'});
+      const arr=Array.isArray(res)?res:(res&&(res.translations||res.strings))||[];
+      chunk.forEach((k,j)=>{if(typeof arr[j]==='string'&&arr[j].trim())cache[k]=arr[j];});
+      saveTrc(lang); if(lang===LANG)translateDom();
+    }
+  }catch(e){console.warn('translate',e);if(e&&(e.code==='not_granted'||e.code==='rate_limited')){trFail=true;setTrBar(e.code==='rate_limited'?'Traduction momentanément limitée, réessayez plus tard.':'Traduction automatique non autorisée.');trBusy=false;return;}}
+  trBusy=false; setTrBar('');
+  if(trQueued){trQueued=false;translateDom();}
+}
+function setTrBar(t){const b=$('#trbar');if(!b)return;b.innerHTML=t?`<div class="trbar">${esc(LANG==='fr'?t:(loadTrc(LANG)[t]||t))}</div>`:'';}
+function setLang(l){LANG=l;trFail=false;try{localStorage.setItem('m4x_lang',l);}catch(e){}
+  if(l!=='fr'&&!SAMPLE){toast('Traduction automatique indisponible dans cette vue.');}
+  render();}
+function initLangSel(){const s=$('#langSel');const narrow=window.innerWidth<=720;s.innerHTML=LANGS.map(([c,n])=>`<option class="notr" value="${c}" ${c===LANG?'selected':''}>${narrow?'🌐 '+c.toUpperCase():c.toUpperCase()+' · '+n}</option>`).join('');s.onchange=()=>setLang(s.value);}
+
+/* chat message translation: cached per message & language */
+const MTR={}; try{Object.assign(MTR,JSON.parse(localStorage.getItem('m4x_mtr')||'{}'));}catch(e){}
+let mtrBusy=false, AUTO_TR=true; try{AUTO_TR=localStorage.getItem('m4x_autotr')!=='0';}catch(e){}
+async function translateMsgs(msgs){
+  if(!SAMPLE||mtrBusy||!AUTO_TR)return;
+  const todo=msgs.filter(m=>MTR[m.id+'|'+LANG]==null).slice(-30); if(!todo.length)return;
+  mtrBusy=true;
+  try{
+    const res=await SAMPLE.json(`Translate each chat message into ${langName(LANG)} (code "${LANG}"). Context: recruiter / engineer conversation on an engineering recruitment platform. Keep names, numbers, technical terms, software names and standards. If a message is already in ${langName(LANG)}, return it unchanged. Return ONLY a JSON array of ${todo.length} strings in the same order.
+Messages:
+${JSON.stringify(todo.map(m=>m.text))}`,{modelTier:'quick',cache:false});
+    const arr=Array.isArray(res)?res:[];
+    todo.forEach((m,i)=>{MTR[m.id+'|'+LANG]=typeof arr[i]==='string'?arr[i]:m.text;});
+    try{localStorage.setItem('m4x_mtr',JSON.stringify(MTR));}catch(e){}
+  }catch(e){console.warn(e);if(e&&e.code==='not_granted'){AUTO_TR=false;}}
+  mtrBusy=false; if(view==='matchs')renderChatOnly(true);
+}
+function luhnSiret(s){s=s.replace(/\s/g,'');if(!/^\d{14}$/.test(s))return false;let sum=0;for(let i=0;i<14;i++){let n=+s[13-i];if(i%2){n*=2;if(n>9)n-=9;}sum+=n;}return sum%10===0||s.startsWith('356000000');}
+function validUrl(u){try{const x=new URL(u);return /^https?:$/.test(x.protocol)&&/\.[a-z]{2,}$/i.test(x.hostname);}catch(e){return false;}}
+
+/* =========================================================
+   Data layer : shared db when available, memory otherwise.
+   Demo data lives in memory only and is never written.
+   ========================================================= */
+const COLS = ['cands','comps','offers','links','msgs','pays','settings'];
+const S = { live:{}, demo:{}, loaded:false };
+COLS.forEach(c=>{S.live[c]={};S.demo[c]={};});
+let DB=true, USER=null, AUTH=null, STATS=null, ADMIN_MSGS=0, ME='';
+const _unusedLocal='local-'+(()=>{try{let v=localStorage.getItem('m4x_local');if(!v){v=Math.random().toString(36).slice(2,10);localStorage.setItem('m4x_local',v);}return v;}catch(e){return Math.random().toString(36).slice(2,10);}})();
+let IS_OWNER=false, SHOW_DEMO=false;
+
+
+const isDemo = id => String(id||'').startsWith('demo-');
+function all(c){const o={...S.live[c]};if(SHOW_DEMO)Object.assign(o,S.demo[c]);return Object.values(o);}
+function get(c,id){return S.live[c][id]||S.demo[c][id]||null;}
+/* ---------- Conservation des saisies (brouillons de formulaires) ---------- */
+const DRAFT_FORMS=['candF','compF','offerF','dispoF'];
+let DRAFTS={}; try{DRAFTS=JSON.parse(localStorage.getItem('m4x_drafts')||'{}');}catch(e){}
+function persistDrafts(){try{localStorage.setItem('m4x_drafts',JSON.stringify(DRAFTS));}catch(e){}}
+function snapForms(){
+  let changed=false;
+  for(const id of DRAFT_FORMS){const f=document.getElementById(id);if(!f)continue;const d={};
+    f.querySelectorAll('input,select,textarea').forEach(el=>{if(el.type==='file'||el.type==='submit')return;const k=el.name||(el.id?'#'+el.id:'');if(!k)return;
+      if(el.type==='checkbox'||el.type==='radio')d[k+'|'+el.value]=el.checked;else d[k]=el.value;});
+    DRAFTS[id]=d;changed=true;}
+  // texte du CV et consentement (hors formulaire)
+  const t=document.getElementById('cvText');if(t){ui.cvText=t.value;DRAFTS.cvText=t.value;changed=true;}
+  if(changed)persistDrafts();
+}
+function restoreForms(){
+  for(const id of DRAFT_FORMS){const f=document.getElementById(id),d=DRAFTS[id];if(!f||!d)continue;
+    f.querySelectorAll('input,select,textarea').forEach(el=>{if(el.type==='file'||el.type==='submit')return;const k=el.name||(el.id?'#'+el.id:'');if(!k)return;
+      if(el.type==='checkbox'||el.type==='radio'){const v=d[k+'|'+el.value];if(v!=null)el.checked=v;}else if(d[k]!=null&&!(d[k]===''&&el.value))el.value=d[k];});}
+}
+function clearDraft(id){delete DRAFTS[id];if(id==='candF'){delete DRAFTS.cvText;delete DRAFTS.consent;}persistDrafts();}
+document.addEventListener('input',e=>{if(e.target.closest&&(e.target.closest('form')||e.target.id==='cvText'))snapForms();});
+document.addEventListener('change',e=>{if(e.target.closest&&e.target.closest('form'))snapForms();});
+/* mode local (sans base partagée) : les données restent enregistrées dans ce navigateur */
+function persistLocal(){if(DB)return;try{localStorage.setItem('m4x_local_data',JSON.stringify(S.live));}catch(e){}}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem('m4x_local_data')||'null');if(d)COLS.forEach(c=>{if(d[c])S.live[c]=d[c];});}catch(e){}}
+const DRAFT_OF={cands:['candF','dispoF'],comps:['compF'],offers:['offerF']};
+
+/* ---------- Accès au serveur ---------- */
+async function api(method,url,body,isForm){
+  const opt={method,headers:{'x-m4x':'1'},credentials:'same-origin'};
+  if(body!==undefined){if(isForm)opt.body=body;else{opt.headers['content-type']='application/json';opt.body=JSON.stringify(body);}}
+  let r;try{r=await fetch(url,opt);}catch(e){throw new Error('Connexion au serveur impossible');}
+  let d={};try{d=await r.json();}catch(e){}
+  if(!r.ok){const e=new Error(d.error||('Erreur '+r.status));e.status=r.status;throw e;}
+  return d;
+}
+async function loadData(){
+  try{const d=await api('GET','/api/data');
+    COLS.forEach(c=>{const o={};(d[c]||[]).forEach(x=>{o[x.id]=x;});S.live[c]=o;});
+    STATS=d.stats||null;ADMIN_MSGS=d.msgCount||0;
+  }catch(e){console.warn(e);}
+  S.loaded=true;render();
+}
+let _ldT=null;const loadDataSoon=()=>{clearTimeout(_ldT);_ldT=setTimeout(loadData,400);};
+async function save(c,obj){
+  const prev=S.live[c][obj.id];
+  S.live[c][obj.id]=obj; render();
+  try{const r=await api('PUT','/api/doc/'+c+'/'+encodeURIComponent(obj.id),{data:obj});
+    if(r.doc)S.live[c][r.doc.id]=r.doc;
+    if(obj.ownerId===ME)(DRAFT_OF[c]||[]).forEach(clearDraft);
+    render();loadDataSoon();return r.doc;}
+  catch(e){if(prev)S.live[c][obj.id]=prev;else delete S.live[c][obj.id];render();toast(e.message);throw e;}
+}
+async function remove(c,id){
+  const prev=S.live[c][id];delete S.live[c][id];render();
+  try{await api('DELETE','/api/doc/'+c+'/'+encodeURIComponent(id));loadDataSoon();}
+  catch(e){if(prev)S.live[c][id]=prev;render();toast(e.message);}
+}
+
+/* ---------- CV analysis ---------- */
+function analyzeCV(raw){
+  const t=' '+norm(raw).replace(/\s+/g,' ')+' ';
+  const scores={};
+  for(const [k,sp] of Object.entries(SPECS)){
+    let s=0;
+    for(const [w,wt] of Object.entries(sp.kw)){
+      const re=new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g');
+      const m=(t.match(re)||[]).length; s+=Math.min(m,3)*wt;
+    }
+    scores[k]=s;
+  }
+  const ranked=Object.entries(scores).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const top=ranked[0]?ranked[0][1]:0;
+  const coreRanked=ranked.filter(([k])=>SPECS[k].core);
+  const primary=coreRanked[0]?coreRanked[0][0]:(ranked[0]?ranked[0][0]:'');
+  const secondary=ranked.filter(([k,v])=>k!==primary&&v>=Math.max(4,top*0.2)).map(([k])=>k);
+  const software=SOFTS.filter(s=>t.includes(norm(s)));
+  const sectors=Object.entries(SECTORS).filter(([,ws])=>ws.some(w=>t.includes(' '+w)||t.includes(w+' '))).map(([n])=>n);
+  const norms=NORMS.filter(n=>t.includes(norm(n)));
+  let years=0; const m=t.match(/(\d{1,2})\s*\+?\s*ans?\s*(d['’ ]?\s?)?(experience|exp)/); if(m)years=+m[1];
+  if(!years){const ys=(t.match(/\b(19[89]\d|20[0-2]\d)\b/g)||[]).map(Number);if(ys.length>1){years=Math.max(0,new Date().getFullYear()-Math.min(...ys));if(years>45)years=0;}}
+  let level='';
+  if(/ingenieur|engineer/.test(t))level='Ingénieur';
+  if(/projeteur|designer/.test(t)&&(!level||(t.match(/projeteur/g)||[]).length>=(t.match(/ingenieur/g)||[]).length))level='Projeteur';
+  if(!level&&/dessinateur|draftsman/.test(t))level='Dessinateur';
+  const email=(raw.match(/[\w.+-]+@[\w-]+\.[\w.-]+/)||[''])[0];
+  const phone=(raw.match(/(?:\+33\s?|0)[1-9](?:[\s.-]?\d{2}){4}/)||[''])[0];
+  return {scores,primary,secondary,software,sectors,norms,years,level,email,phone,confidence:top>=25?'élevée':top>=10?'moyenne':'faible'};
+}
+async function extractText(file){
+  const name=file.name.toLowerCase();
+  const buf=await file.arrayBuffer();
+  if(name.endsWith('.pdf')){
+    if(!window.pdfjsLib)throw new Error('Lecteur PDF indisponible');
+    const pdf=await pdfjsLib.getDocument({data:buf}).promise; let out='';
+    for(let i=1;i<=Math.min(pdf.numPages,15);i++){const p=await pdf.getPage(i);const c=await p.getTextContent();out+=c.items.map(x=>x.str).join(' ')+'\n';}
+    return out;
+  }
+  if(name.endsWith('.docx')){
+    if(!window.mammoth)throw new Error('Lecteur Word indisponible');
+    return (await mammoth.extractRawText({arrayBuffer:buf})).value;
+  }
+  return new TextDecoder().decode(buf);
+}
+
+/* ---------- matching ---------- */
+function matchScore(c,o){
+  if(!c||!o)return {total:0,parts:{}};
+  const skills=[c.primary,...(c.secondary||[])];
+  const p={};
+  p.spec = c.primary===o.specialty?40:(c.secondary||[]).includes(o.specialty)?22:0;
+  const os=o.secondary||[];
+  p.sec = os.length? Math.round(15*os.filter(x=>skills.includes(x)).length/os.length) : (p.spec?10:0);
+  const ct=(c.dispo&&c.dispo.types)||[];
+  p.contract = (o.contract||[]).some(x=>ct.includes(x))?15:0;
+  const dd=c.dispo&&c.dispo.date?new Date(c.dispo.date).getTime():null, st=o.start?new Date(o.start).getTime():null;
+  p.date = (!dd||!st)?7:(dd<=st?15:(dd-st<=MONTH?8:0));
+  const osw=o.software||[], csw=(c.software||[]).map(norm);
+  p.soft = osw.length? Math.round(15*osw.filter(x=>csw.includes(norm(x))).length/osw.length) : 10;
+  return {total:Math.min(100,p.spec+p.sec+p.contract+p.date+p.soft),parts:p};
+}
+const scCls = s => s>=70?'sc-hi':s>=45?'sc-mid':'sc-lo';
+const scoreBox = s => `<div class="score ${scCls(s)}">${s}%<small>MATCH</small></div>`;
+
+/* ---------- account helpers ---------- */
+const DOCN={kbis:'Extrait d\'immatriculation',vigilance:'Attestation de vigilance',cabinet:'Justificatif cabinet'};
+const verifPill = p => p.verif==='ok'?'<span class="pill ok">✔ vérifiés</span>':p.verif==='ko'?'<span class="pill bad">refusés — à renvoyer</span>':isDemo(p.id)?'<span class="pill ok">✔ vérifiés</span>':'<span class="pill warn">en cours de vérification</span>';
+const myCand = () => all('cands').find(c=>c.ownerId===ME&&!isDemo(c.id))||null;
+const myComp = () => all('comps').find(c=>c.ownerId===ME&&!isDemo(c.id))||null;
+/* ---------- Période d'essai gratuite (lancement) ---------- */
+const LAUNCH_DEF={id:'launch',offersFree:true,trialOn:true,end:'2026-11-30',promoOn:true,promoEnd:'2026-12-15',candCap:500,candMonths:6,compCap:50,compMonths:4};
+const launch = () => ({...LAUNCH_DEF,...(S.live.settings.launch||S.demo.settings.launch||{})});
+const trialEndTs = () => new Date(launch().end+'T23:59:59').getTime();
+const trialActive = () => !!launch().trialOn && Date.now()<trialEndTs();
+const trialDays = () => daysLeft(trialEndTs());
+/* ---------- Promotions « premiers inscrits » ----------
+   Rang calculé par date d'inscription parmi les comptes réels (hors démo) de chaque groupe.
+   Les N premiers inscrits jusqu'à la date de fin de promotion ont M mois gratuits à compter de leur inscription. */
+const groupOf = x => x&&x.siret!==undefined?'comps':'cands';
+const promoCfg = g => {const L=launch();return g==='cands'?{cap:+L.candCap,months:+L.candMonths,who:'individus (candidats)'}:{cap:+L.compCap,months:+L.compMonths,who:'entreprises et cabinets'};};
+const promoEndTs = () => new Date(launch().promoEnd+'T23:59:59').getTime();
+const addMonths = (t,m) => {const d=new Date(t);d.setMonth(d.getMonth()+m);return d.getTime();};
+let PROMO_CACHE=null;
+function promoRanks(){
+  if(PROMO_CACHE)return PROMO_CACHE; const r={};
+  for(const g of ['cands','comps']){Object.values(S.live[g]).filter(x=>x&&x.sub&&!isDemo(x.id)).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)).forEach((x,i)=>{r[x.id]=i+1;});}
+  return PROMO_CACHE=r;
+}
+const realCount = g => STATS&&STATS[g]!=null?STATS[g]:Object.values(S.live[g]).filter(x=>x&&x.sub&&!isDemo(x.id)).length;
+function promoOf(x){
+  if(x&&x._promo!==undefined)return x._promo;
+  if(!x||!x.sub||!x.sub.trial||isDemo(x.id)||!launch().promoOn)return null;
+  const g=groupOf(x), c=promoCfg(g), rank=promoRanks()[x.id];
+  if(!rank||rank>c.cap||(x.createdAt||0)>promoEndTs())return null;
+  return {rank,cap:c.cap,months:c.months,end:addMonths(x.createdAt||Date.now(),c.months)};
+}
+const promoLeft = g => Math.max(0,promoCfg(g).cap-realCount(g));
+const promoOpen = g => launch().promoOn&&Date.now()<=promoEndTs()&&promoLeft(g)>0;
+const freeStart = g => trialActive()||promoOpen(g);
+const freeLabel = x => {const pr=promoOf(x);return pr?`offre ${pr.months} mois offerts (inscrit n°${pr.rank})`:'essai gratuit';};
+const subEnd = x => x&&x._subEnd!=null?x._subEnd:x&&x.sub?(x.sub.trial?Math.max(trialEndTs(),(promoOf(x)||{}).end||0):x.sub.expiresAt):0;
+const subOk = x => !!(x&&x.sub&&subEnd(x)>Date.now());
+const isTrial = x => !!(x&&x.sub&&x.sub.trial);
+const offerOn = o => o&&o.active&&o.expiresAt>Date.now()&&(isDemo(o.compId)||subOk(get('comps',o.compId)));
+const linkId = (cid,pid) => cid+'__'+pid;
+const isMatch = l => l&&l.candLiked&&l.compLiked;
+function myLinks(){const c=myCand(),p=myComp();return all('links').filter(l=>(c&&l.candId===c.id)||(p&&l.compId===p.id));}
+function unread(){let n=0;for(const l of myLinks().filter(isMatch)){const side=myCand()&&l.candId===myCand().id?'cand':'comp';const seen=+(()=>{try{return localStorage.getItem('m4x_seen_'+l.id)||0}catch(e){return 0}})();n+=all('msgs').filter(m=>m.linkId===l.id&&m.side!==side&&m.at>seen).length;}return n;}
+const specName = k => SPECS[k]?SPECS[k].n:'—';
+const specPills = (p,sec) => (p?`<span class="pill p">${esc(specName(p))}</span>`:'')+(sec||[]).map(k=>`<span class="pill ${SPECS[k]&&SPECS[k].core?'':'blue'}">${esc(specName(k))}</span>`).join('');
+
+/* ---------- payment (simulated) ---------- */
+function pay(label,amount,onDone,extra=''){
+  const reg=/^(Inscription|Abonnement)/.test(label);
+  modal(`<h2>Abonnement</h2><p class="muted">${esc(label)} — <b>${eur(amount)}</b> TTC</p>${extra}
+   <div class="note blue">Le paiement en ligne par carte arrive très prochainement. Pour vous abonner dès maintenant, écrivez à <b class="notr">${EDITOR.mail}</b> : règlement par virement, abonnement activé sous 24 h ouvrées, facture fournie.</div>
+   <div class="note small">Sans reconduction automatique.${reg?' Vous pouvez dès maintenant enregistrer votre compte : il sera activé à réception du règlement.':''}</div>
+   <div class="row" style="margin-top:14px"><button class="btn ghost" data-close>Fermer</button>${reg?'<button class="btn acc" id="payGo">Enregistrer mon compte</button>':''}</div>`);
+  const g=$('#payGo');if(g)g.onclick=async()=>{closeModal();try{await onDone();}catch(e){}};
+}
+function payOld(label,amount,onDone,extra=''){
+  modal(`<h2>Paiement</h2>
+   <p class="muted">${esc(label)}</p>
+   <div class="price">${eur(amount)} <small>TTC</small></div>
+   ${extra}
+   <div class="note">Paiement ponctuel, <b>sans reconduction automatique</b>. À l'échéance, l'accès s'arrête simplement ; vous renouvelez si vous le souhaitez.</div>
+   <div class="note blue small">Prototype : le paiement est simulé, aucune donnée bancaire n'est demandée. En production, ce bouton ouvrirait un paiement sécurisé (Stripe, carte ou SEPA) avec facture.</div>
+   <div class="row" style="margin-top:14px"><button class="btn ghost" data-close>Annuler</button><button class="btn acc" id="payGo">Simuler le paiement de ${eur(amount)}</button></div>`);
+  $('#payGo').onclick=async()=>{closeModal();await onDone();};
+}
+/* ---------- Photo portrait ---------- */
+function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('image illisible'));i.src=u;});}
+async function processPortrait(file){
+  if(!/^image\/(jpeg|png|webp)$/i.test(file.type)&&!/\.(jpe?g|png|webp)$/i.test(file.name))throw new Error('format non accepté (JPG, PNG ou WebP)');
+  if(file.size>15*1048576)throw new Error('fichier trop lourd (15 Mo max)');
+  const img=await loadImg(file); const w=img.naturalWidth,h=img.naturalHeight;
+  if(h<=w)throw new Error('la photo doit être au format portrait (plus haute que large)');
+  if(w<200||h<260)throw new Error('photo trop petite (minimum 200 × 260 pixels)');
+  // recadrage centré au format 3:4, réduit à 300 × 400
+  let cw=w,ch=Math.round(w*4/3); if(ch>h){ch=h;cw=Math.round(h*3/4);}
+  const cv=document.createElement('canvas');cv.width=300;cv.height=400;
+  cv.getContext('2d').drawImage(img,(w-cw)/2,(h-ch)/4,cw,ch,0,0,300,400);
+  return cv.toDataURL('image/jpeg',0.82);
+}
+const initials = n => String(n||'?').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('');
+function avatar(c,show,sm){
+  const cls='avatar'+(sm?' sm':'');
+  if(show&&c&&c.photo)return `<img class="${cls}" src="${esc(c.photo)}" alt="Photo de ${esc(c.name)}">`;
+  if(!show&&c&&(c.photo||c.hasPhoto))return `<div class="${cls} lock" title="Photo visible après un match">🔒</div>`;
+  return `<div class="${cls}">${esc(initials(c&&c.name))}</div>`;
+}
+
+/* documents: stored with the assets capability (PDF / images / text); otherwise only the name is kept */
+async function uploadDoc(file,kind){
+  if(!file)return null;
+  const fd=new FormData();fd.append('file',file);fd.append('kind',kind||'cv');
+  try{return await api('POST','/api/files',fd,true);}
+  catch(e){toast('Envoi impossible ('+file.name+') : '+e.message);return null;}
+}
+const docLink = (d,label) => d&&d.id?`<a href="${esc(d.url||('/api/files/'+d.id))}" target="_blank" rel="noopener">📄 ${esc(label||d.name)}</a>`:'';
+function recordPay(){}
+
+function modal(html,wide){$('#modal').innerHTML=`<div class="modal-bg"><div class="modal${wide?' wide':''}">${html}</div></div>`;translateDom();$('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);$('#modal .modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))closeModal();};}
+function closeModal(){$('#modal').innerHTML='';}
+
+/* =========================================================
+   Router & views
+   ========================================================= */
+const VIEWS = {accueil:'Accueil',offres:'Offres & missions',profils:'Profils',candidat:'Espace candidat',entreprise:'Espace entreprise',matchs:'Matchs & messages',comparateur:'CDI vs freelance',tarifs:'Tarifs',admin:'Admin',compte:'Mon compte',legal:'Mentions légales & CGV'};
+let view='accueil', ui={};
+function go(v){if(!VIEWS[v])v='accueil';view=v;try{if(location.hash!=='#'+v)location.hash=v;}catch(e){}render();window.scrollTo(0,0);}
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(VIEWS[h]&&h!==view){view=h;render();}});
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){e.preventDefault();go(g.dataset.go);}});
+
+function renderNav(){
+  const ab=$('#acctBtn');if(ab){ab.textContent=AUTH?'👤 Mon compte':'Connexion';ab.onclick=()=>AUTH?go('compte'):authModal('login');}
+  const n=unread();
+  $('#nav').innerHTML=Object.entries(VIEWS).filter(([k])=>k!=='legal'&&k!=='compte'&&(k!=='admin'||IS_OWNER)).map(([k,v])=>`<a href="#${k}" data-go="${k}" class="${view===k?'on':''}">${v}${k==='matchs'&&n?`<span class="badge-n">${n}</span>`:''}</a>`).join('');
+}
+function render(){
+  PROMO_CACHE=null;
+  renderNav();
+  const st=$('#status');
+  st.textContent = !S.loaded?'connexion…':DB?'● base partagée':'● mode local (ce navigateur)';
+  st.style.color = DB?'#7fd1a0':'#f2b36b';
+  const f={accueil:vHome,offres:vOffers,profils:vProfiles,candidat:vCand,entreprise:vComp,matchs:vMatches,tarifs:vPricing,admin:vAdmin,legal:vLegal,compte:vAccount,comparateur:vCompare}[view];
+  const keep=document.activeElement&&document.activeElement.id; const pos=keep&&document.activeElement.selectionStart;
+  if(view==='matchs'&&ui.typing)return renderChatOnly();
+  snapForms();
+  if(ui.anaFresh&&DRAFTS.candF){for(const k of Object.keys(DRAFTS.candF))if(/^(primary|secondary|years|software|level)\b/.test(k))delete DRAFTS.candF[k];ui.anaFresh=false;persistDrafts();}
+  $('#app').innerHTML=banners()+f()+footer();
+  restoreForms();
+  bind[view]&&bind[view]();
+  translateDom();
+  if(keep&&document.getElementById(keep)){const el=document.getElementById(keep);el.focus();try{if(pos!=null)el.setSelectionRange(pos,pos);}catch(e){}}
+}
+const bind={};
+
+function lockCard(acc,space){
+  return `<div class="card" style="text-align:center;padding:30px;border:2px solid var(--bad)"><div style="font-size:30px">🔒</div><h2>${isTrial(acc)?'Votre période gratuite est terminée':'Abonnement inactif'}</h2>
+  <p class="muted">${isTrial(acc)?'Depuis le '+fmtD(subEnd(acc))+', les fonctions du site (offres, profils, matching, messagerie) sont réservées aux abonnés.':'Votre abonnement a expiré.'} Vos données sont conservées : abonnez-vous pour tout retrouver.</p>
+  <button class="btn acc" data-go="${space}">Prendre un abonnement</button></div>`;
+}
+function banners(){
+  let h=''; const c=myCand(),p=myComp(); const L=launch();
+  if((IS_OWNER||!DB)&&L.trialOn&&Date.now()<trialEndTs()&&trialDays()<=3)
+    h+=`<div class="note bad" style="margin-top:0"><b>Administrateur :</b> la période d'essai gratuite se termine dans ${trialDays()} jour(s), le ${fmtD(trialEndTs())}. Après cette date, les comptes d'essai seront bloqués. <button class="btn sm acc" data-go="admin">Prolonger ou confirmer</button></div>`;
+  const tr=[c,p].filter(x=>isTrial(x)); const soon=tr.find(x=>subOk(x)&&daysLeft(subEnd(x))<=3);
+  if(soon)
+    h+=`<div class="note bad" style="margin-top:0"><b>Plus que ${daysLeft(subEnd(soon))} jour(s) de gratuité</b> (${esc(freeLabel(soon))}, fin le ${fmtD(subEnd(soon))}). Ensuite, les fonctions du site seront inutilisables sans abonnement. <button class="btn sm acc" data-go="${soon===c?'candidat':'entreprise'}">Prendre un abonnement</button></div>`;
+  else if(tr.length&&tr.every(x=>!subOk(x))&&view!=='candidat'&&view!=='entreprise')
+    h+=`<div class="note bad" style="margin-top:0">Votre période gratuite est terminée : prenez un abonnement pour continuer à utiliser le site. <button class="btn sm acc" data-go="${c&&isTrial(c)?'candidat':'entreprise'}">S'abonner</button></div>`;
+  return h;
+}
+
+function promoBlock(){
+  const L=launch(); if(!L.promoOn)return '';
+  const open=Date.now()<=promoEndTs();
+  const bar=(g,lab)=>{const c=promoCfg(g),n=Math.min(realCount(g),c.cap),pct=Math.round(100*n/c.cap);
+    return `<div style="flex:1;min-width:250px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:12px 14px">
+      <div style="font-size:13px;color:#cbd7e8">${lab}</div>
+      <div style="font-size:15px;font-weight:700;margin:2px 0 6px">${c.months} mois gratuits pour les ${c.cap} premiers inscrits</div>
+      <div style="height:10px;background:rgba(255,255,255,.15);border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${n?Math.max(2,pct):0}%;background:var(--acc)"></i></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-top:5px"><span class="mono"><b style="font-size:18px">${realCount(g)}</b> inscrit(s)</span><span>${open&&n<c.cap?`<b>${c.cap-n}</b> place(s) restante(s)`:'offre complète'}</span></div></div>`;};
+  return `<div style="margin:16px 0 0;max-width:820px">
+    <div style="font-size:14px;margin-bottom:8px">🚀 <b>Promotion de lancement</b> ${open?`— jusqu'au <b>${fmtD(promoEndTs())}</b>`:'— terminée'} · compteur des inscriptions en temps réel<br><span style="color:#ffd9b8">✔ L'inscription ne vous engage aucunement vers un abonnement. Aucun moyen de paiement demandé.</span></div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">${bar('cands','Ingénieurs, projeteurs, dessinateurs')}${bar('comps','Entreprises et cabinets de recrutement')}</div></div>`;
+}
+
+/* ---------- Accueil ---------- */
+function vHome(){
+  const cands={length:STATS?STATS.activeCands:0}, offers={length:STATS?STATS.offers:0}, comps={length:STATS?STATS.activeComps:0};
+  const matches=STATS?STATS.matches:0;
+  return `
+  <section class="hero"><div class="grid-bg"></div>
+    <h1>Les bons profils d'ingénierie, au bon moment.</h1>
+    <p>La plateforme qui met en relation ingénieurs, projeteurs, entreprises et cabinets de recrutement en <b>tuyauterie, structures &amp; charpente, mécanique et installation générale</b>. Le CV est analysé automatiquement, le matching fait le reste.<br>${SAMPLE?'La messagerie traduit chaque échange dans votre langue.':'La messagerie intégrée vous met directement en relation.'}</p>
+    ${trialActive()?`<div style="display:inline-block;background:var(--acc);color:#fff;border-radius:10px;padding:12px 18px;margin:6px 0 4px;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.2)">🎉 <b>Offre de lancement : inscription gratuite jusqu'au ${fmtD(trialEndTs())}</b><br><span style="font-size:13px;opacity:.95">Candidats, entreprises et cabinets : toutes les fonctions et les annonces sont gratuites pendant la période d'essai. Aucun moyen de paiement demandé. L'inscription ne vous engage aucunement vers un abonnement.<br><b>La période d\'essai sera prolongée aussi longtemps que nécessaire, le temps du démarrage du site.</b></span></div>`:''}
+    ${promoBlock()}
+    <div class="row" style="max-width:520px;margin-top:18px">
+      <button class="btn acc" data-go="candidat">Je cherche un poste / une mission</button>
+      <button class="btn ghost" data-go="entreprise">Je recrute</button>
+    </div>
+  </section>
+  <div class="grid g4">
+    <div class="card"><div class="kpi">${cands.length}</div><div class="kpi-l">profils actifs</div></div>
+    <div class="card"><div class="kpi">${offers.length}</div><div class="kpi-l">offres &amp; missions ouvertes</div></div>
+    <div class="card"><div class="kpi">${comps.length}</div><div class="kpi-l">entreprises inscrites</div></div>
+    <div class="card"><div class="kpi">${matches}</div><div class="kpi-l">matchs réalisés</div></div>
+  </div>
+  <h2 style="margin-top:10px">Comment ça marche</h2>
+  <div class="steps">
+    <div class="step"><b>Inscription</b><br><span class="small muted">20 €/an pour les candidats ; 500 €/an pour les entreprises, 250 €/an pour les cabinets de recrutement, 100 €/an pour les entreprises individuelles. Jamais de reconduction automatique.</span></div>
+    <div class="step"><b>CV analysé automatiquement</b><br><span class="small muted">Spécialité principale, spécialités secondaires, logiciels, normes, secteurs et années d'expérience sont déduits du CV.</span></div>
+    <div class="step"><b>Annonces</b><br><span class="small muted">Disponibilité gratuite pour les candidats. Offre à 10 € pour 1 mois côté entreprise, liée à un besoin réel et ponctuel.</span></div>
+    <div class="step"><b>Match &amp; discussion</b><br><span class="small muted">Quand le candidat et l'entreprise se montrent tous deux intéressés, un canal de discussion s'ouvre.</span></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <div class="item-h"><div><h3>Spécialités couvertes au lancement</h3><div>${CORE.map(k=>`<span class="pill p">${SPECS[k].n}</span>`).join('')}</div>
+    <p class="small muted" style="margin:8px 0 0">D'autres secteurs (génie civil, électricité-instrumentation, CVC, procédés…) sont déjà repérés dans les CV comme spécialités secondaires, en vue de l'extension.</p></div>
+    </div>
+  </div>`;
+}
+bind.accueil=()=>{const d=$('#demoT');if(d)d.onchange=()=>{SHOW_DEMO=d.checked;try{localStorage.setItem('m4x_demo',SHOW_DEMO?'1':'0');}catch(e){}render();};};
+
+
+/* =========================================================
+   Comptes : connexion, inscription, mot de passe, déconnexion
+   ========================================================= */
+document.addEventListener('click',e=>{const a=e.target.closest('[data-auth]');if(a){e.preventDefault();authModal(a.dataset.auth);}});
+function authGate(space){
+  const t={candidat:['Espace candidat','Créez votre compte pour déposer votre CV, votre photo et votre annonce de disponibilité.'],
+    entreprise:['Espace entreprise','Créez votre compte pour inscrire votre entreprise ou votre cabinet et publier vos offres.'],
+    matchs:['Matchs & messages','Connectez-vous pour retrouver vos matchs et vos conversations.']}[space]||['Connexion',''];
+  return `<h1>${t[0]}</h1><div class="card" style="max-width:620px;text-align:center;padding:30px">
+   <div style="font-size:34px">👤</div><h2>Connectez-vous ou créez votre compte</h2><p class="muted">${t[1]}</p>
+   <div class="row" style="max-width:440px;margin:14px auto 0"><button class="btn acc" data-auth="register">Créer un compte</button><button class="btn ghost" data-auth="login">Se connecter</button></div>
+   <p class="small" style="margin:14px 0 0;color:var(--ok)">✔ L'inscription ne vous engage aucunement vers un abonnement.</p></div>`;
+}
+function authModal(mode){
+  ui.pendingView=['candidat','entreprise','matchs'].includes(view)?view:ui.pendingView;
+  const head={login:'Connexion',register:'Créer un compte',forgot:'Mot de passe oublié'}[mode];
+  modal(`<div class="item-h"><h2>${head}</h2><button class="btn ghost sm" data-close>✕</button></div>
+   <form id="authF">
+    <label>Adresse e-mail</label><input name="email" type="email" required autocomplete="email">
+    ${mode!=='forgot'?`<label>Mot de passe ${mode==='register'?'<span class="muted small">(8 caractères minimum)</span>':''}</label><input name="password" type="password" required minlength="8" autocomplete="${mode==='register'?'new-password':'current-password'}">`:''}
+    ${mode==='register'?`<label>Confirmer le mot de passe</label><input name="password2" type="password" required minlength="8" autocomplete="new-password">
+     <label class="switch" style="margin-top:12px;align-items:flex-start"><input type="checkbox" name="cgu" required style="margin-top:3px"> <span>J'accepte les <a href="#legal" data-go="legal">conditions générales</a> et la <a href="#legal" data-go="legal">politique de données personnelles</a>.</span></label>`:''}
+    <div id="authErr" class="small" style="color:var(--bad);margin-top:8px"></div>
+    <button class="btn acc" style="width:100%;justify-content:center;margin-top:12px">${{login:'Se connecter',register:'Créer mon compte',forgot:'Recevoir un lien de réinitialisation'}[mode]}</button>
+   </form>
+   <div class="small" style="margin-top:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    ${mode==='login'?'<a href="#" data-auth="forgot">Mot de passe oublié ?</a><a href="#" data-auth="register">Créer un compte</a>':'<a href="#" data-auth="login">J\'ai déjà un compte</a>'}
+   </div>
+   ${mode==='register'?'<p class="small" style="color:var(--ok);margin:10px 0 0">✔ L\'inscription ne vous engage aucunement vers un abonnement.</p>':''}`);
+  const f=$('#authF');setTimeout(()=>{const i=f.querySelector('input');if(i)i.focus();},50);
+  f.onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(f));const er=$('#authErr');er.textContent='';
+    if(mode==='register'&&d.password!==d.password2){er.textContent='Les deux mots de passe ne correspondent pas.';return;}
+    const btn=f.querySelector('button');btn.disabled=true;
+    try{
+      if(mode==='forgot'){const r=await api('POST','/api/auth/forgot',{email:d.email});
+        modal(`<h2>Mot de passe oublié</h2><p>${r.manual?'Pour réinitialiser votre mot de passe, écrivez à <b class="notr">'+EDITOR.mail+'</b> depuis l\'adresse de votre compte : un mot de passe provisoire vous sera envoyé.':'Si un compte existe avec cette adresse, vous allez recevoir un e-mail avec un lien valable 1 heure.'}</p><button class="btn" data-close>Fermer</button>`);return;}
+      await api('POST','/api/auth/'+(mode==='register'?'register':'login'),{email:d.email,password:d.password});
+      await afterLogin();closeModal();toast(mode==='register'?'Compte créé — bienvenue !':'Connexion réussie');
+      if(ui.pendingView){go(ui.pendingView);ui.pendingView=null;}
+    }catch(err){er.textContent=err.message;btn.disabled=false;}
+  };
+}
+async function afterLogin(){
+  try{const r=await api('GET','/api/auth/me');AUTH=r.user;}catch(e){AUTH=null;}
+  ME=AUTH?AUTH.id:'';IS_OWNER=!!(AUTH&&AUTH.admin);
+  await loadData();
+}
+async function logout(){
+  try{await api('POST','/api/auth/logout',{});}catch(e){}
+  AUTH=null;ME='';IS_OWNER=false;COLS.forEach(c=>{S.live[c]={};});
+  ui={};go('accueil');await loadData();toast('Vous êtes déconnecté');
+}
+function resetModal(token){
+  modal(`<h2>Nouveau mot de passe</h2><form id="rsF"><label>Nouveau mot de passe <span class="muted small">(8 caractères minimum)</span></label><input name="password" type="password" minlength="8" required autocomplete="new-password">
+   <label>Confirmer</label><input name="password2" type="password" minlength="8" required autocomplete="new-password"><div id="rsErr" class="small" style="color:var(--bad);margin-top:8px"></div>
+   <button class="btn acc" style="margin-top:12px">Enregistrer</button></form>`);
+  $('#rsF').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    if(d.password!==d.password2){$('#rsErr').textContent='Les deux mots de passe ne correspondent pas.';return;}
+    try{await api('POST','/api/auth/reset',{token,password:d.password});history.replaceState(null,'',location.pathname+location.hash);toast('Mot de passe modifié : connectez-vous');authModal('login');}
+    catch(err){$('#rsErr').textContent=err.message;}};
+}
+function vAccount(){
+  if(!AUTH)return authGate('compte');
+  const c=myCand(),p=myComp();
+  const st=x=>!x?'<span class="muted">non créé</span>':subOk(x)?`<span class="pill ok">${isTrial(x)?esc(freeLabel(x)):'abonnement actif'}</span> jusqu'au ${fmtD(subEnd(x))}`:'<span class="pill bad">inactif</span>';
+  return `<h1>Mon compte</h1><p class="sub">Connecté avec <b class="notr">${esc(AUTH.email)}</b>${AUTH.admin?' · <span class="pill p">administrateur</span>':''}</p>
+  <div class="grid g2">
+   <div class="card"><h2>Mes espaces</h2>
+    <table><tbody><tr><td><b>Profil candidat</b></td><td>${st(c)}</td><td><button class="btn sm ghost" data-go="candidat">${c?'Ouvrir':'Créer'}</button></td></tr>
+    <tr><td><b>Entreprise / cabinet</b></td><td>${st(p)}</td><td><button class="btn sm ghost" data-go="entreprise">${p?'Ouvrir':'Créer'}</button></td></tr></tbody></table>
+    <p class="small muted" style="margin-top:10px">Un même compte peut avoir un profil candidat et une entreprise.</p>
+    <button class="btn" id="logoutBtn" style="margin-top:8px">Se déconnecter</button></div>
+   <div class="card"><h2>Changer de mot de passe</h2><form id="pwF">
+    <label>Mot de passe actuel</label><input name="current" type="password" required autocomplete="current-password">
+    <label>Nouveau mot de passe <span class="muted small">(8 caractères minimum)</span></label><input name="password" type="password" minlength="8" required autocomplete="new-password">
+    <button class="btn acc" style="margin-top:12px">Modifier</button></form></div>
+  </div>
+  <div class="card" style="border-color:#f1c9c4"><h2>Supprimer mon compte</h2><p class="small muted">Suppression définitive de votre compte, de vos profils, offres, documents, photo et conversations (droit à l'effacement, RGPD).</p>
+   <form id="delF" class="row" style="align-items:flex-end;max-width:560px"><div><label>Mot de passe</label><input name="password" type="password" required autocomplete="current-password"></div><div style="flex:none"><button class="btn bad">Supprimer définitivement</button></div></form></div>`;
+}
+bind.compte=()=>{
+  if(!AUTH)return;
+  $('#logoutBtn').onclick=logout;
+  $('#pwF').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    try{await api('POST','/api/auth/password',d);e.target.reset();toast('Mot de passe modifié');}catch(err){toast(err.message);}};
+  $('#delF').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));
+    modal(`<h2>Supprimer votre compte ?</h2><p>Cette action est <b>définitive</b> : profils, offres, documents, photo et conversations seront effacés.</p><div class="row"><button class="btn ghost" data-close>Annuler</button><button class="btn bad" id="delGo">Oui, supprimer</button></div>`);
+    $('#delGo').onclick=async()=>{try{await api('DELETE','/api/auth/account',{password:d.password});closeModal();AUTH=null;ME='';IS_OWNER=false;COLS.forEach(c=>{S.live[c]={};});go('accueil');await loadData();toast('Compte supprimé');}catch(err){closeModal();toast(err.message);}};};
+};
+
+/* ---------- Mentions légales, CGV, CGU, RGPD ---------- */
+const EDITOR={name:'M4X Design',form:'Micro-entreprise exploitée par Pascal COGUEN (entrepreneur individuel)',addr:'6, rue Berthelot, 61470 Sap-en-Auge, France',rcs:'788 880 680 R.C.S. Chartres',tva:'FR65788880680',mail:'contact@m4xdesign.business',web:'https://m4xdesign.business'};
+function footer(){return `<footer style="margin-top:40px;padding-top:16px;border-top:1px solid var(--line);font-size:13px;color:var(--mute);display:flex;gap:14px;flex-wrap:wrap;justify-content:space-between"><span>M4X Sourcing 2.0 — un service édité par <b>${EDITOR.name}</b> · ${EDITOR.rcs}</span><span>${AUTH?'<a href="#compte" data-go="compte">Mon compte</a>':'<a href="#" data-auth="login">Connexion</a>'} · <a href="#legal" data-go="legal">Mentions légales</a> · <a href="#legal" data-go="legal">CGV / CGU</a> · <a href="#legal" data-go="legal">Données personnelles</a> · <a href="#tarifs" data-go="tarifs">Tarifs</a></span></footer>`;}
+function vLegal(){
+  const t=ui.legalTab||'ml'; const tab=(k,l)=>`<button class="${t===k?'on':''}" data-ltab="${k}">${l}</button>`;
+  const E=EDITOR;
+  const body={
+  ml:`<h2>Mentions légales</h2>
+   <h3>Éditeur du site</h3><p><b>${E.name}</b> — ${E.form}<br>Siège : ${E.addr}<br>Immatriculation : ${E.rcs}<br>N° de TVA intracommunautaire : ${E.tva}<br>Contact : <span class="notr">${E.mail}</span> · <a href="${E.web}" target="_blank" rel="noopener">${E.web}</a></p>
+   <h3>Directeur de la publication</h3><p>Pascal COGUEN, en qualité d'exploitant de ${E.name}.</p>
+   <h3>Hébergement</h3><p>Cloudflare, Inc., 101 Townsend Street, San Francisco, CA 94107, États-Unis (www.cloudflare.com). Base de données et fichiers stockés dans la région Europe de l'Ouest.</p>
+   <h3>Propriété intellectuelle</h3><p>La marque, le nom « M4X Sourcing », la structure du site et ses contenus sont la propriété de ${E.name}. Toute reproduction sans autorisation est interdite. Les CV, dossiers et annonces restent la propriété de leurs auteurs.</p>
+   <h3>Traduction automatique</h3><p>Le site et la messagerie peuvent être traduits automatiquement par intelligence artificielle. Seule la version française fait foi.</p>`,
+  cgv:`<h2>Conditions générales de vente</h2>
+   <h3>Article 1 — Objet</h3><p>Les présentes CGV régissent la vente des services payants de la plateforme M4X Sourcing 2.0, éditée par ${E.name}, à tout utilisateur (candidat, entreprise, cabinet de recrutement).</p>
+   <h3>Article 2 — Services et prix</h3><table><tbody>
+    <tr><td>Inscription candidat (ingénieur, projeteur, dessinateur)</td><td class="mono">20 € / an</td></tr>
+    <tr><td>Abonnement entreprise</td><td class="mono">500 € / an</td></tr>
+    <tr><td>Abonnement cabinet de recrutement</td><td class="mono">250 € / an</td></tr>
+    <tr><td>Abonnement entreprise individuelle / micro-entreprise</td><td class="mono">100 € / an</td></tr>
+    <tr><td>Annonce de recrutement (poste ou mission), durée 1 mois</td><td class="mono">10 €</td></tr>
+    <tr><td>Annonce de disponibilité candidat</td><td class="mono">gratuite</td></tr></tbody></table>
+   <p class="small">Prix en euros. ${E.name} relevant du régime de la micro-entreprise, la mention applicable en matière de TVA (« TVA non applicable, art. 293 B du CGI » ou TVA facturée) figure sur chaque facture selon la situation fiscale en vigueur.</p>
+   <h3>Article 3 — Durée, absence de reconduction</h3><p>Les inscriptions et abonnements sont souscrits pour 12 mois à compter du paiement. <b>Ils ne sont jamais reconduits automatiquement.</b> <b>L'inscription gratuite (période d'essai ou promotion) n'engage aucunement l'utilisateur vers un abonnement payant</b> : aucun moyen de paiement n'est demandé et aucun abonnement n'est souscrit sans démarche volontaire de sa part. Pendant la période d'essai gratuite de lancement, inscriptions et annonces sont offertes jusqu'à la date affichée sur le site ; cette période sera prolongée aussi longtemps que nécessaire, le temps du démarrage du site ; à son terme, un abonnement est nécessaire pour continuer à utiliser les fonctions du site, l'utilisateur étant prévenu 3 jours avant. Les profils et annonces des comptes non abonnés sont masqués mais conservés, et réapparaissent dès l'abonnement. <b>Promotion premiers inscrits :</b> pour toute inscription réalisée jusqu'au 15 décembre 2026 inclus, les 500 premiers individus inscrits bénéficient de 6 mois d'utilisation gratuite et les 50 premières entreprises ou cabinets de recrutement de 4 mois gratuits, à compter de la date d'inscription ; l'ordre d'inscription fait foi et le compteur est affiché en page d'accueil. Les annonces de recrutement restent payantes en dehors de la période d'essai. Un rappel est affiché 30 jours avant l'échéance ; le renouvellement est une démarche volontaire. Une annonce de recrutement est en ligne 30 jours ; l'annonceur peut la désactiver à tout moment, sans prolongation ni remboursement de la période non utilisée.</p>
+   <h3>Article 4 — Paiement et facture</h3><p>Le paiement est exigible à la commande, par carte bancaire ou prélèvement via un prestataire de paiement sécurisé. Une facture est mise à disposition dans l'espace client.</p>
+   <h3>Article 5 — Droit de rétractation</h3><p>Le client consommateur dispose d'un délai de 14 jours pour se rétracter (art. L221-18 du Code de la consommation). En demandant l'accès immédiat au service, il accepte que l'exécution commence avant la fin de ce délai ; la rétractation donne alors lieu à un remboursement au prorata du service non consommé. Les professionnels ne bénéficient pas du droit de rétractation.</p>
+   <h3>Article 6 — Obligations des entreprises</h3><p>Les entreprises et cabinets fournissent un lien vers leur site internet et des justificatifs (extrait d'immatriculation de moins de 3 mois, justificatif d'activité pour les cabinets). Chaque offre doit correspondre à un <b>besoin réel, actuel et non permanent</b>, avec motif et projet ; les cabinets indiquent le client final. Les annonces fictives ou « vivier » peuvent être retirées sans remboursement, et le compte suspendu.</p>
+   <h3>Article 7 — Responsabilité</h3><p>${E.name} met en relation candidats et recruteurs ; elle n'est pas partie aux contrats conclus entre eux (CDI, CDD, freelance, portage salarial) et ne garantit ni l'embauche ni la conclusion d'une mission. Les scores de compatibilité sont indicatifs.</p>
+   <h3>Article 8 — Résiliation</h3><p>En cas de manquement grave (faux justificatifs, annonces trompeuses, comportement abusif dans la messagerie), ${E.name} peut suspendre le compte après mise en demeure restée sans effet sous 8 jours.</p>
+   <h3>Article 9 — Médiation et droit applicable</h3><p>Droit français. Le consommateur peut recourir gratuitement à un médiateur de la consommation (coordonnées communiquées sur demande) ou à la plateforme européenne de règlement en ligne des litiges. À défaut d'accord amiable, les tribunaux compétents sont ceux du ressort du siège de l'éditeur, sous réserve des règles protectrices du consommateur.</p>`,
+  cgu:`<h2>Conditions générales d'utilisation</h2>
+   <p>L'inscription est réservée aux personnes majeures et aux personnes morales régulièrement immatriculées. L'utilisateur garantit l'exactitude des informations et documents fournis (CV, dossier de compétences, justificatifs). Le CV complet et le dossier de compétences d'un candidat sont consultables uniquement par les entreprises et cabinets abonnés, pour un usage strictement limité au recrutement ; toute extraction ou diffusion à des tiers est interdite. Les coordonnées complètes d'un candidat ne sont révélées dans la fiche qu'après un match, c'est-à-dire un intérêt réciproque. La messagerie est réservée aux échanges professionnels liés au recrutement ; tout démarchage non sollicité, contenu illicite ou discriminatoire est interdit (art. L1132-1 du Code du travail). Un bouton de signalement sera disponible sur chaque annonce et chaque conversation.</p>`,
+  rgpd:`<h2>Données personnelles (RGPD)</h2>
+   <p><b>Responsable du traitement :</b> ${E.name}, ${E.addr} — <span class="notr">${E.mail}</span>.</p>
+   <p><b>Données traitées :</b> identité, coordonnées, photo d'identité (format portrait, visible des recruteurs uniquement après un match), CV, dossier de compétences, disponibilités, prétentions, messages ; pour les entreprises : identité du contact, justificatifs d'immatriculation.</p>
+   <p><b>Traitement automatique du CV :</b> avec votre accord explicite (case à cocher à l'inscription, horodatée), le texte du CV est extrait et analysé automatiquement pour déduire vos spécialités, logiciels, normes, secteurs et années d'expérience, puis calculer un score de compatibilité avec les offres. Cette analyse est indicative, modifiable par vous à tout moment, et ne produit aucune décision automatisée de recrutement au sens de l'art. 22 du RGPD : la décision appartient toujours à un recruteur humain.</p>
+   <p><b>Finalités et bases légales :</b> mise en relation (exécution du contrat), analyse du CV (consentement), facturation (obligation légale), prévention des fraudes (intérêt légitime).</p>
+   <p><b>Destinataires :</b> les entreprises et cabinets abonnés (consultation du CV complet ; fiche pseudonymisée et photo masquée avant match), les prestataires techniques (hébergement, paiement, traduction automatique par IA).</p>
+   <p><b>Durées de conservation :</b> durée de l'inscription puis 2 ans d'inactivité maximum ; pièces comptables 10 ans ; justificatifs d'entreprise durée de l'abonnement + 1 an.</p>
+   <p><b>Vos droits :</b> accès, rectification, effacement, limitation, portabilité, opposition et retrait du consentement à tout moment, en écrivant à <span class="notr">${E.mail}</span>. Réclamation possible auprès de la CNIL (www.cnil.fr).</p>
+   <p><b>Transferts hors UE :</b> la plateforme étant mondiale, certains traitements (hébergement, traduction) peuvent impliquer des transferts encadrés par des clauses contractuelles types.</p>`};
+  return `<h1>Informations légales</h1><p class="sub">Éditeur : ${E.name} · ${E.rcs}</p>
+  <div class="tabs">${tab('ml','Mentions légales')}${tab('cgv','Conditions générales de vente')}${tab('cgu','Conditions d\'utilisation')}${tab('rgpd','Données personnelles')}</div>
+  <div class="card">${body[t]}</div>
+  <div class="note small">Textes rédigés comme base de travail : à faire relire par un juriste avant la mise en production.</div>`;
+}
+bind.legal=()=>document.querySelectorAll('[data-ltab]').forEach(b=>b.onclick=()=>{ui.legalTab=b.dataset.ltab;render();});
+
+/* ---------- Comparateur CDI / CDD / Freelance / Portage (tableur) ---------- */
+const CMP_DEF={brut:50000,salariales:22,patronales:42,avantages:3000,joursCDI:218,dureeCDD:12,precarite:10,iccp:10,tjm:450,joursFree:210,microTaux:25.6,fraisPro:3000,plafond:83600,gestion:8,tauxNetPortage:50,joursPortage:210,ir:'—'};
+let CMP={...CMP_DEF};try{Object.assign(CMP,JSON.parse(localStorage.getItem('m4x_cmp')||'{}'));}catch(e){}
+const CMP_FIELDS=[
+ ['CDI / CDD (salariat)',[['brut','Salaire brut annuel','€'],['salariales','Charges salariales','%'],['patronales','Charges patronales','%'],['avantages','Avantages employeur (mutuelle, tickets, prime…)','€/an'],['joursCDI','Jours travaillés par an','j'],['dureeCDD','Durée du CDD','mois'],['precarite','Indemnité de fin de contrat (CDD)','%'],['iccp','Indemnité compensatrice de congés (CDD)','%']]],
+ ['Freelance (micro-entreprise BNC)',[['tjm','Taux journalier (TJM)','€ HT'],['joursFree','Jours facturés par an','j'],['microTaux','Cotisations sociales micro BNC (2026)','%'],['fraisPro','Frais professionnels (assurance RC, matériel, comptable…)','€/an'],['plafond','Plafond CA micro (services, 2026)','€']]],
+ ['Portage salarial',[['gestion','Frais de gestion de la société de portage','%'],['tauxNetPortage','Net / CA après frais de gestion','%'],['joursPortage','Jours facturés par an','j']]]];
+function cmpCalc(v){
+  const n=k=>+v[k]||0;
+  const cdiCost=n('brut')*(1+n('patronales')/100)+n('avantages'), cdiNet=n('brut')*(1-n('salariales')/100);
+  const m=n('dureeCDD')/12, cddBrut=n('brut')*m*(1+n('precarite')/100)*(1+n('iccp')/100);
+  const cddCost=cddBrut*(1+n('patronales')/100)+n('avantages')*m, cddNet=cddBrut*(1-n('salariales')/100), cddJ=n('joursCDI')*m;
+  const ca=n('tjm')*n('joursFree'), freeNet=ca*(1-n('microTaux')/100)-n('fraisPro');
+  const caP=n('tjm')*n('joursPortage'), portNet=caP*(1-n('gestion')/100)*n('tauxNetPortage')/100;
+  return {cols:['CDI','CDD','Freelance (micro)','Portage salarial'],
+    cost:[cdiCost,cddCost,ca,caP], days:[n('joursCDI'),cddJ,n('joursFree'),n('joursPortage')], net:[cdiNet,cddNet,freeNet,portNet], months:[12,n('dureeCDD')||12,12,12], over:ca>n('plafond')};
+}
+const e0 = x => isFinite(x)?Math.round(x).toLocaleString('fr-FR')+' €':'—';
+const QUAL=[
+ ['Engagement de l\'entreprise','Long terme','Durée fixée (motif obligatoire)','À la mission','À la mission'],
+ ['Fin de collaboration','Rupture encadrée, préavis, indemnités','Terme du contrat','Selon contrat commercial','Selon contrat commercial'],
+ ['Délai de mise en place','Long (préavis 1 à 3 mois)','Moyen','Rapide','Rapide'],
+ ['Protection sociale du professionnel','Complète (chômage, prévoyance)','Complète (chômage)','Réduite (pas de chômage)','Salarié (chômage, mutuelle)'],
+ ['Congés payés','Oui','Indemnité 10 %','Non facturés','Inclus dans le calcul'],
+ ['Gestion administrative entreprise','Paie, RH','Paie, RH','Facture fournisseur','Facture fournisseur'],
+ ['Risque de requalification','—','Si besoin permanent','Si lien de subordination','Faible'],
+ ['Idéal pour','Besoin durable, savoir-faire à garder','Pic d\'activité, remplacement','Expertise ponctuelle, démarrage rapide','Mission longue sans créer de société']];
+function vCompare(){
+  const r=cmpCalc(CMP);
+  const row=(lab,arr,f=e0,cls='')=>`<tr class="${cls}"><td>${lab}</td>${arr.map(x=>`<td class="mono" style="text-align:right">${f(x)}</td>`).join('')}</tr>`;
+  const perDay=r.cost.map((c,i)=>c/(r.days[i]||1)), netM=r.net.map((x,i)=>x/(r.months[i]||12)), ratio=r.net.map((x,i)=>x/(r.cost[i]||1));
+  return `<h1>Comparatif CDI, CDD, freelance et portage</h1>
+  <p class="sub">Comparez le coût pour l'entreprise et le revenu net pour le professionnel. Modifiez les cellules en orange : tout se recalcule.</p>
+  <div class="grid g2" style="grid-template-columns:minmax(300px,420px) 1fr">
+   <div class="card"><div class="item-h"><h2>Hypothèses</h2><button class="btn ghost sm" id="cmpReset">Valeurs par défaut</button></div>
+    ${CMP_FIELDS.map(([g,fs])=>`<h3 style="margin-top:12px">${g}</h3><table><tbody>${fs.map(([k,l,u])=>`<tr><td class="small">${l}</td><td style="width:120px"><input class="mono cmpIn" id="cmp_${k}" data-k="${k}" type="number" step="any" value="${esc(CMP[k])}" style="text-align:right;background:var(--acc2);padding:5px 7px"></td><td class="small muted" style="width:44px">${u}</td></tr>`).join('')}</tbody></table>`).join('')}
+    <p class="small muted" style="margin-top:10px">Valeurs par défaut : barèmes 2026 (micro-entreprise BNC 25,6 %, plafond 83 600 €) et ordres de grandeur courants. À adapter à chaque situation.</p>
+   </div>
+   <div>
+    <div class="card"><div class="item-h"><h2>Résultats annuels</h2><button class="btn sm" id="cmpCopy">Copier vers Excel / tableur</button></div>
+     <div style="overflow-x:auto"><table id="cmpTable"><thead><tr><th></th>${r.cols.map(c=>`<th style="text-align:right">${c}</th>`).join('')}</tr></thead><tbody>
+      ${row('<b>Coût pour l\'entreprise</b>',r.cost)}
+      ${row('Jours travaillés / facturés',r.days,x=>Math.round(x)+' j')}
+      ${row('<b>Coût par jour</b>',perDay)}
+      ${row('<b>Revenu net du professionnel</b> (avant impôt)',r.net)}
+      ${row('Net mensuel moyen',netM)}
+      ${row('Part du coût qui revient au professionnel',ratio,x=>isFinite(x)?Math.round(x*100)+' %':'—')}
+     </tbody></table></div>
+     ${r.over?'<div class="note bad small">Le chiffre d\'affaires freelance dépasse le plafond de la micro-entreprise : au-delà de deux années consécutives, passage au régime réel (EURL, SASU…).</div>':''}
+     <div class="note blue small">Le CDD est calculé sur sa durée (${esc(CMP.dureeCDD)} mois). Les montants nets s'entendent avant impôt sur le revenu. Simulation indicative, sans valeur de conseil juridique, fiscal ou social.</div>
+    </div>
+    <div class="card"><h2>Comparatif qualitatif</h2><div style="overflow-x:auto"><table><thead><tr><th></th>${r.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>
+     ${QUAL.map(q=>`<tr><td><b class="small">${q[0]}</b></td>${q.slice(1).map(x=>`<td class="small">${x}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div></div>
+   </div>
+  </div>
+  <textarea id="cmpTsv" class="notr" style="display:none"></textarea>`;
+}
+function cmpTsv(){
+  const r=cmpCalc(CMP), perDay=r.cost.map((c,i)=>c/(r.days[i]||1)), netM=r.net.map((x,i)=>x/(r.months[i]||12));
+  const L=[['M4X Sourcing 2.0 — comparatif',...r.cols],['Coût entreprise (€)',...r.cost.map(Math.round)],['Jours',...r.days.map(Math.round)],['Coût par jour (€)',...perDay.map(Math.round)],['Revenu net avant IR (€)',...r.net.map(Math.round)],['Net mensuel (€)',...netM.map(Math.round)],[],['Hypothèses','Valeur']];
+  CMP_FIELDS.forEach(([,fs])=>fs.forEach(([k,l,u])=>L.push([l+' ('+u+')',CMP[k]])));
+  return L.map(r=>r.join('\t')).join('\n');
+}
+bind.comparateur=()=>{
+  document.querySelectorAll('.cmpIn').forEach(i=>i.oninput=()=>{CMP[i.dataset.k]=i.value;try{localStorage.setItem('m4x_cmp',JSON.stringify(CMP));}catch(e){}render();});
+  $('#cmpReset').onclick=()=>{CMP={...CMP_DEF};try{localStorage.removeItem('m4x_cmp');}catch(e){}render();};
+  $('#cmpCopy').onclick=async()=>{const t=cmpTsv();try{await navigator.clipboard.writeText(t);toast('Tableau copié : collez-le dans Excel ou Google Sheets');}catch(e){const ta=$('#cmpTsv');ta.style.display='block';ta.value=t;ta.select();toast('Sélectionnez le texte et copiez-le (Ctrl+C)');}};
+};
+
+/* ---------- Tarifs ---------- */
+function vPricing(){
+  return `<h1>Tarifs</h1><p class="sub">Paiement unique annuel, sans engagement et sans reconduction automatique. <b>L'inscription ne vous engage aucunement vers un abonnement.</b></p>
+  ${launch().promoOn&&Date.now()<=promoEndTs()?`<div class="note ok"><b>Promotion premiers inscrits (jusqu'au ${fmtD(promoEndTs())}) :</b> ${promoCfg('cands').months} mois d'utilisation gratuite pour les ${promoCfg('cands').cap} premiers individus inscrits (encore ${promoLeft('cands')} place(s)) ; ${promoCfg('comps').months} mois gratuits pour les ${promoCfg('comps').cap} premières entreprises et cabinets (encore ${promoLeft('comps')} place(s)). Durée comptée à partir de l'inscription.</div>`:''}
+  ${trialActive()?`<div class="note ok"><b>Offre de lancement :</b> inscriptions et annonces gratuites jusqu'au ${fmtD(trialEndTs())}. <b>La période d\'essai sera prolongée aussi longtemps que nécessaire, le temps du démarrage du site.</b> À la fin de l'essai, un abonnement est nécessaire pour continuer à utiliser le site ; vous êtes prévenu 3 jours avant.</div>`:''}
+  <div class="grid g4">
+   <div class="card"><h3>Candidat</h3><div class="price">20 € <small>/ an</small></div><p class="small muted">Ingénieur, projeteur, dessinateur. Profil visible des entreprises, analyse du CV, matching, messagerie.</p><span class="pill ok">Annonce de disponibilité gratuite</span></div>
+   <div class="card"><h3>Entreprise</h3><div class="price">500 € <small>/ an</small></div><p class="small muted">Accès aux profils, matching, messagerie. Lien vers le site internet obligatoire.</p></div>
+   <div class="card"><h3>Entreprise individuelle</h3><div class="price">100 € <small>/ an</small></div><p class="small muted">EI et micro-entreprises : mêmes fonctions que l'offre entreprise.</p></div>
+   <div class="card"><h3>Cabinet de recrutement</h3><div class="price">250 € <small>/ an</small></div><p class="small muted">Accès aux profils et publication d'offres pour le compte de clients (client final indiqué sur chaque offre).</p></div>
+   <div class="card"><h3>Annonce de recrutement</h3><div class="price">10 € <small>/ mois</small></div><p class="small muted">Poste ou mission, en ligne 1 mois, désactivable à tout moment par l'annonceur. Doit correspondre à un besoin réel et non permanent.</p></div>
+  </div>
+  <div class="note">À l'échéance, l'abonnement expire simplement. Un rappel est affiché 30 jours avant ; le renouvellement est toujours une démarche volontaire.</div>`;
+}
+
+/* ---------- Espace candidat ---------- */
+function vCand(){
+  if(!AUTH)return authGate('candidat');
+  const c=myCand(); const d=ui.cvDraft;
+  if(!c||ui.editCand){
+    const base=c||{}; const a=d||(base.primary?{primary:base.primary,secondary:base.secondary,software:base.software,sectors:base.sectors,norms:base.norms,years:base.years,level:base.level,scores:base.scores||{}}:null);
+    return `<h1>${c?'Modifier mon profil':'Inscription candidat'}</h1><p class="sub">Ingénieur, projeteur ou dessinateur : déposez votre CV, la plateforme en déduit votre profil.</p>
+    <div class="grid g2">
+     <div class="card"><h2>1. Votre CV, votre photo et votre dossier de compétences</h2>
+       <label class="switch" style="align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:10px;background:${ui.consent?'var(--okbg)':'var(--acc2)'}"><input type="checkbox" id="consent" ${ui.consent?'checked':''} style="margin-top:3px"> <span>J'accepte de fournir mon CV, ma photo et mon dossier de compétences à M4X Sourcing et j'autorise leur <b>traitement automatique</b> (extraction du texte, déduction de mes spécialités, calcul de compatibilité avec les offres) ainsi que la <b>consultation de mon CV complet par les entreprises et cabinets abonnés</b>. <a href="#legal" data-go="legal">En savoir plus</a> <span class="req">*</span></span></label>
+       <div class="drop" id="drop" style="margin-top:10px;${ui.consent?'':'opacity:.5;pointer-events:none'}"><b>CV <span class="req">*</span> — déposez votre fichier ici</b><br><span class="small muted">PDF (recommandé), Word (.docx) ou texte — ou cliquez pour choisir</span><input type="file" id="cvFile" accept=".pdf,.docx,.txt" hidden></div>
+       <div id="cvMsg" class="small muted" style="margin-top:8px">${ui.cvName?'✔ CV : '+esc(ui.cvName):(base.cvName?'CV enregistré : '+esc(base.cvName):'')}</div>
+       <label>Photo d'identité au format portrait <span class="req">*</span> <span class="muted small">(JPG ou PNG, plus haute que large, visage bien visible)</span></label>
+       <div class="photo-box">${(ui.photo||base.photo)?`<img class="avatar" src="${esc(ui.photo||base.photo)}" alt="Aperçu de la photo">`:'<div class="avatar">?</div>'}
+         <div style="flex:1"><input type="file" id="photoFile" accept="image/jpeg,image/png,image/webp" ${ui.consent?'':'disabled'}><div class="small muted" id="photoMsg" style="margin-top:4px">${ui.photo?'✔ Photo prête (recadrée au format 3:4)':base.photo?'Photo enregistrée — choisissez un fichier pour la remplacer':'Recadrage automatique au format 3:4.'}</div></div></div>
+       <label>Dossier de compétences <span class="req">*</span> <span class="muted small">(PDF : références projets, livrables, logiciels)</span></label>
+       <div class="doc"><input type="file" id="dcFile" accept=".pdf" ${ui.consent?'':'disabled'}><span class="small muted">${ui.dcName?'✔ '+esc(ui.dcName):(base.dcName?'Enregistré : '+esc(base.dcName):'')}</span></div>
+       <label>Texte du CV <span class="muted small">(rempli automatiquement, modifiable)</span></label>
+       <textarea id="cvText" style="min-height:120px" placeholder="Le texte extrait du CV apparaîtra ici — vous pouvez aussi le coller" ${ui.consent?'':'disabled'}>${esc(ui.cvText??base.cvText??'')}</textarea>
+       <div class="row" style="margin-top:8px;flex:none"><button class="btn ghost sm" id="anaBtn" style="flex:none" ${ui.consent?'':'disabled'}>Analyser le texte</button>${SAMPLE?`<button class="btn sm" id="aiBtn" style="flex:none" ${ui.consent?'':'disabled'}>✦ Affiner avec l'IA (CV en toutes langues)</button>`:''}</div>
+       ${a?anaPanel(a):''}
+     </div>
+     <div class="card"><h2>2. Vos informations</h2>
+       <form id="candF">
+       <div class="row"><div><label>Prénom et nom <span class="req">*</span></label><input name="name" required value="${esc(base.name||'')}"></div>
+       <div><label>Fonction <span class="req">*</span></label><select name="level">${['Ingénieur','Projeteur','Dessinateur','Chef de projet','Technicien'].map(x=>`<option ${((a&&a.level)||base.level)===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+       <div class="row"><div><label>E-mail <span class="req">*</span></label><input name="email" type="email" required value="${esc(base.email||(d&&d.email)||(AUTH&&AUTH.email)||'')}"></div>
+       <div><label>Téléphone</label><input name="phone" value="${esc(base.phone||(d&&d.phone)||'')}"></div></div>
+       <div class="row"><div><label>Pays <span class="req">*</span></label><select name="country">${COUNTRIES.map(x=>`<option ${(base.country||'France')===x?'selected':''}>${x}</option>`).join('')}</select></div>
+       <div><label>Ville <span class="req">*</span></label><input name="city" required value="${esc(base.city||'')}"></div>
+       <div><label>Mobilité</label><select name="mobility">${['Locale (< 50 km)','Régionale','Nationale','Internationale'].map(x=>`<option ${base.mobility===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+       <label>Spécialité principale <span class="req">*</span> <span class="muted small">(déduite du CV, modifiable)</span></label>
+       <select name="primary" required><option value="">—</option>${Object.entries(SPECS).map(([k,s])=>`<option value="${k}" ${((a&&a.primary)||base.primary)===k?'selected':''}>${s.n}${s.core?'':' (hors périmètre initial)'}</option>`).join('')}</select>
+       <label>Spécialités secondaires</label>
+       <div class="chk">${Object.entries(SPECS).map(([k,s])=>`<label><input type="checkbox" name="secondary" value="${k}" ${(((a&&a.secondary)||base.secondary||[])).includes(k)?'checked':''}>${s.n}</label>`).join('')}</div>
+       <label>Années d'expérience</label><input name="years" type="number" min="0" max="50" value="${esc((a&&a.years)||base.years||'')}">
+       <label>Logiciels</label><input name="software" value="${esc(((a&&a.software)||base.software||[]).join(', '))}" placeholder="PDMS, Caesar II, AutoCAD…">
+       <label class="switch" style="margin-top:12px"><input type="checkbox" name="cgv" required ${c?'checked':''}> J'accepte les <a href="#legal" data-go="legal">conditions générales de vente et d'utilisation</a> <span class="req">*</span></label>
+       ${c?'':promoOpen('cands')?`<div class="note ok small"><b>Offre premiers inscrits :</b> ${promoCfg('cands').months} mois d'utilisation gratuite à compter de votre inscription — plus que <b>${promoLeft('cands')} place(s)</b> sur ${promoCfg('cands').cap}, jusqu'au ${fmtD(promoEndTs())}. Ensuite, 20 €/an pour continuer (sans reconduction automatique). <b>L\'inscription ne vous engage aucunement vers un abonnement.</b></div>`:trialActive()?`<div class="note ok small"><b>Essai gratuit :</b> inscription offerte jusqu'au ${fmtD(trialEndTs())}, période prolongée aussi longtemps que nécessaire pendant le démarrage du site. Ensuite, abonnement de 20 €/an pour continuer (sans reconduction automatique).</div>`:`<div class="note small">L'inscription coûte <b>20 € pour un an</b>, sans reconduction automatique. Votre annonce de disponibilité est ensuite gratuite.</div>`}
+       <p class="small" style="margin:6px 0 0;color:var(--ok)">✔ L'inscription ne vous engage aucunement vers un abonnement. Aucun renouvellement automatique.</p>
+       <div class="row" style="margin-top:12px">${c?'<button type="button" class="btn ghost" id="cancelEdit">Annuler</button>':''}<button class="btn acc">${c?'Enregistrer':freeStart('cands')?'Créer mon profil gratuitement':'Continuer vers le paiement (20 €)'}</button></div>
+       </form>
+     </div>
+    </div>`;
+  }
+  const exp=subEnd(c), ok=subOk(c), dl=exp?daysLeft(exp):0;
+  const dsp=c.dispo||{};
+  const sugg=(ok?all('offers').filter(offerOn):[]).map(o=>({o,s:matchScore(c,o).total})).sort((a,b)=>b.s-a.s).slice(0,4);
+  return `<h1>Bonjour ${esc(c.name.split(' ')[0])}</h1><p class="sub">Votre espace candidat.</p>
+  ${!ok?`<div class="note bad">${isTrial(c)?'Votre période gratuite est terminée depuis le '+fmtD(exp)+' : les fonctions du site sont désactivées pour votre compte.':'Votre inscription '+(exp?'a expiré le '+fmtD(exp):'n\'est pas active')+'.'} Votre profil n'est plus visible des entreprises. <button class="btn sm acc" id="renew">Prendre un abonnement d'un an (20 €)</button></div>`:isTrial(c)?`<div class="note ${dl<=3?'bad':'ok'}">Compte gratuit — <b>${esc(freeLabel(c))}</b> — jusqu'au ${fmtD(exp)}${dl<=3?` — <b>plus que ${dl} jour(s)</b> : prenez un abonnement pour continuer à utiliser le site`:''}. <button class="btn sm ${dl<=3?'acc':'ghost'}" id="renew">S'abonner dès maintenant (20 €/an, à partir du ${fmtD(exp)})</button></div>`:dl<=30?`<div class="note">Votre inscription expire dans ${dl} jour(s), le ${fmtD(exp)}. Elle ne sera pas reconduite automatiquement. <button class="btn sm acc" id="renew">Renouveler (20 €)</button></div>`:''}
+  <div class="grid g2">
+   <div class="card">
+     <div class="item-h"><div style="display:flex;gap:12px;align-items:center">${avatar(c,true)}<h2 style="margin:0">Mon profil</h2></div><button class="btn ghost sm" id="editC">Modifier / nouveau CV</button></div>
+     ${c.photo?'':'<div class="note bad small">Photo portrait manquante : ajoutez-la via « Modifier ».</div>'}
+     <p style="margin:0 0 6px"><b>${esc(c.level)}</b> · ${esc(c.city)} · mobilité ${esc(c.mobility||'—')} · ${c.years?c.years+' ans d\'exp.':'expérience non précisée'}</p>
+     ${!ok?'<div class="note bad small">Profil et annonce de disponibilité <b>masqués</b> aux entreprises. Toutes vos données restent enregistrées et réapparaissent dès votre abonnement.</div>':''}
+     <div>${specPills(c.primary,c.secondary)}</div>
+     ${c.software&&c.software.length?`<p class="small" style="margin:8px 0 0"><span class="muted">Logiciels :</span> ${c.software.map(esc).join(', ')}</p>`:''}
+     ${c.norms&&c.norms.length?`<p class="small" style="margin:4px 0 0"><span class="muted">Normes :</span> ${c.norms.map(esc).join(', ')}</p>`:''}
+     ${c.sectors&&c.sectors.length?`<p class="small" style="margin:4px 0 0"><span class="muted">Secteurs :</span> ${c.sectors.map(esc).join(', ')}</p>`:''}
+     <p class="small" style="margin:8px 0 0"><span class="muted">Documents :</span> ${docLink(c.cvAsset,'CV')||esc(c.cvName||'CV')} · ${docLink(c.dcAsset,'Dossier de compétences')||esc(c.dcName||'dossier de compétences')}</p>
+     <p class="small muted" style="margin-top:10px">Inscription : ${ok?`<span class="pill ok">${isTrial(c)?esc(freeLabel(c)):'active'}</span> jusqu'au ${fmtD(exp)}`:'<span class="pill bad">inactive</span>'}</p>
+   </div>
+   <div class="card"><h2>Mon annonce de disponibilité <span class="pill ok">gratuite</span></h2>
+     <form id="dispoF">
+      <div class="row"><div><label>Disponible à partir du <span class="req">*</span></label><input type="date" name="date" required value="${esc(dsp.date||'')}"></div>
+      <div><label>Zone recherchée</label><input name="zone" value="${esc(dsp.zone||c.city||'')}"></div></div>
+      <label>Type de recherche <span class="req">*</span></label>
+      <div class="chk">${CONTRACTS.map(x=>`<label><input type="checkbox" name="types" value="${x}" ${(dsp.types||[]).includes(x)?'checked':''}>${x}</label>`).join('')}</div>
+      <div class="row"><div><label>Télétravail</label><select name="remote">${['Indifférent','Sur site','Hybride','Full remote'].map(x=>`<option ${dsp.remote===x?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div><label>Prétentions (TJM ou salaire)</label><input name="rate" value="${esc(dsp.rate||'')}" placeholder="ex. 450 €/j ou 48 k€"></div></div>
+      <label>Message</label><textarea name="note" placeholder="Ce que vous recherchez…">${esc(dsp.note||'')}</textarea>
+      <div class="row" style="margin-top:10px;align-items:center"><label class="switch"><input type="checkbox" name="active" ${dsp.active!==false?'checked':''}> Annonce en ligne</label><button class="btn">Enregistrer l'annonce</button></div>
+     </form>
+   </div>
+  </div>
+  <div class="card"><div class="item-h"><h2>Offres qui vous correspondent</h2><button class="btn ghost sm" data-go="offres">Toutes les offres</button></div>
+   ${sugg.length?sugg.map(x=>offerItem(x.o,c)).join(''):'<div class="empty">Aucune offre ouverte pour le moment.</div>'}
+  </div>`;
+}
+function anaPanel(a){
+  const max=Math.max(1,...Object.values(a.scores||{}));
+  const rows=Object.entries(a.scores||{}).filter(([,v])=>v>0).sort((x,y)=>y[1]-x[1]);
+  return `<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px">
+   <h3>Analyse automatique ${a.confidence?`<span class="pill ${a.confidence==='élevée'||a.confidence==='IA'?'ok':a.confidence==='moyenne'?'warn':'bad'}">${a.confidence==='IA'?'affinée par IA':'confiance '+a.confidence}</span>`:''}</h3>
+   ${a.summary?`<p class="small" style="margin:0 0 6px"><i>${esc(a.summary)}</i></p>`:''}
+   <p style="margin:4px 0 8px">Principale : ${a.primary?`<span class="pill p">${esc(specName(a.primary))}</span>`:'<span class="muted">non déterminée</span>'}
+   ${a.secondary&&a.secondary.length?`<br>Secondaires : ${a.secondary.map(k=>`<span class="pill ${SPECS[k].core?'':'blue'}">${esc(specName(k))}</span>`).join('')}`:''}</p>
+   ${rows.map(([k,v])=>`<div class="spec-row"><span>${esc(specName(k))}</span><div class="bar ${k===a.primary?'p':''}"><i style="width:${Math.round(100*v/max)}%"></i></div><span class="mono">${v}</span></div>`).join('')||'<p class="small muted">Aucun mot-clé métier reconnu.</p>'}
+   <p class="small" style="margin:8px 0 0">${a.level?`<b>${esc(a.level)}</b> · `:''}${a.years?a.years+' ans d\'expérience · ':''}${(a.software||[]).map(esc).join(', ')||'aucun logiciel repéré'}</p>
+   ${(a.norms||[]).length?`<p class="small" style="margin:2px 0 0">Normes : ${a.norms.map(esc).join(', ')}</p>`:''}
+   ${(a.sectors||[]).length?`<p class="small" style="margin:2px 0 0">Secteurs : ${a.sectors.map(esc).join(', ')}</p>`:''}
+  </div>`;
+}
+bind.candidat=()=>{
+  if(!AUTH)return;
+  const drop=$('#drop');
+  if(drop){
+    const fi=$('#cvFile');
+    $('#consent').onchange=e=>{ui.consent=e.target.checked;ui.consentAt=ui.consent?Date.now():null;if(ui.consent)DRAFTS.consent=ui.consentAt;else delete DRAFTS.consent;persistDrafts();render();};
+    $('#photoFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;$('#photoMsg').textContent='Traitement de la photo…';
+      try{ui.photo=await processPortrait(f);DRAFTS.photo=ui.photo;persistDrafts();render();toast('Photo ajoutée');}
+      catch(err){e.target.value='';$('#photoMsg').innerHTML='<span style="color:var(--bad)">✖ '+esc(err.message.charAt(0).toUpperCase()+err.message.slice(1))+'.</span>';}};
+    $('#dcFile').onchange=e=>{const f=e.target.files[0];if(!f)return;if(!/\.pdf$/i.test(f.name))return toast('Le dossier de compétences doit être un PDF');if(f.size>20*1048576)return toast('Fichier trop lourd (20 Mo max)');ui.dcFileObj=f;ui.dcName=f.name;render();};
+    const ai=$('#aiBtn');if(ai)ai.onclick=async()=>{const t=$('#cvText').value;if(t.trim().length<80)return toast('Déposez ou collez d\'abord le CV');ai.disabled=true;ai.textContent='Analyse IA en cours…';
+      try{const r=await SAMPLE.json(`You analyse an engineering CV (any language) for a recruitment platform. Specialty codes: ${Object.entries(SPECS).map(([k,s])=>k+'='+s.n).join(', ')}.
+Return ONLY JSON: {"primary":code (prefer TUY, STR, MEC or IG when relevant),"secondary":[codes],"level":"Ingénieur"|"Projeteur"|"Dessinateur"|"Chef de projet"|"Technicien","years":number,"software":[names],"norms":[standards],"sectors":[industries in French],"summary":"one sentence in French"}.
+CV:
+${t.slice(0,12000)}`,{modelTier:'default'});
+        const base=ui.cvDraft||analyzeCV(t);
+        if(r&&SPECS[r.primary]){ui.anaFresh=true;ui.cvDraft={...base,primary:r.primary,secondary:(r.secondary||[]).filter(k=>SPECS[k]&&k!==r.primary),level:r.level||base.level,years:+r.years||base.years,software:[...new Set([...(r.software||[]),...base.software])],norms:[...new Set([...(r.norms||[]),...base.norms])],sectors:[...new Set([...(r.sectors||[]),...base.sectors])],confidence:'IA',summary:r.summary};render();toast('Analyse IA terminée');}
+        else throw new Error('réponse invalide');
+      }catch(e){toast(e&&e.code==='not_granted'?'Analyse IA non autorisée':'Analyse IA impossible pour le moment');ai.disabled=false;ai.textContent='✦ Affiner avec l\'IA (CV en toutes langues)';}};
+    const handle=async f=>{if(!f)return;if(f.size>20*1048576)return toast('Fichier trop lourd (20 Mo max)');$('#cvMsg').textContent='Lecture de '+f.name+'…';try{const t=await extractText(f);ui.cvText=t;ui.cvName=f.name;ui.cvFileObj=f;ui.cvDraft=analyzeCV(t);ui.anaFresh=true;render();toast('CV analysé');}catch(e){ui.cvFileObj=f;ui.cvName=f.name;$('#cvMsg').textContent='Fichier reçu mais texte illisible ('+e.message+'). Collez le texte du CV ci-dessous.';}};
+    drop.onclick=()=>fi.click(); fi.onchange=()=>handle(fi.files[0]);
+    drop.ondragover=e=>{e.preventDefault();drop.classList.add('over');}; drop.ondragleave=()=>drop.classList.remove('over');
+    drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');handle(e.dataTransfer.files[0]);};
+    $('#anaBtn').onclick=()=>{const t=$('#cvText').value;if(t.trim().length<30)return toast('Texte trop court');ui.cvText=t;ui.cvDraft=analyzeCV(t);ui.anaFresh=true;render();};
+    $('#cvText').oninput=e=>{ui.cvText=e.target.value;};
+    const ce=$('#cancelEdit');if(ce)ce.onclick=()=>{ui.editCand=false;ui.cvDraft=null;render();};
+    $('#candF').onsubmit=e=>{
+      e.preventDefault();const f=new FormData(e.target);const ex=myCand();const a=ui.cvDraft;
+      if(!ui.consent)return toast('Cochez l\'autorisation de fourniture et de traitement automatique du CV');
+      if(!ui.cvFileObj&&!(ex&&ex.cvName))return toast('Le CV est obligatoire');
+      if(!ui.dcFileObj&&!(ex&&ex.dcName))return toast('Le dossier de compétences est obligatoire');
+      if(!ui.photo&&!(ex&&ex.photo))return toast('La photo portrait est obligatoire');
+      const obj={...(ex||{}),id:ex?ex.id:'cand-'+ME,ownerId:ME,name:f.get('name').trim(),level:f.get('level'),email:f.get('email').trim(),phone:f.get('phone').trim(),country:f.get('country'),city:f.get('city').trim(),mobility:f.get('mobility'),consentAt:ui.consentAt||(ex&&ex.consentAt)||Date.now(),
+        primary:f.get('primary'),secondary:f.getAll('secondary').filter(k=>k!==f.get('primary')),years:+f.get('years')||0,
+        software:f.get('software').split(',').map(s=>s.trim()).filter(Boolean),
+        cvText:(ui.cvText??(ex&&ex.cvText)??'').slice(0,20000),cvName:ui.cvName||(ex&&ex.cvName)||'',
+        scores:a?a.scores:(ex&&ex.scores)||{},sectors:a?a.sectors:(ex&&ex.sectors)||[],norms:a?a.norms:(ex&&ex.norms)||[],createdAt:(ex&&ex.createdAt)||Date.now()};
+      if(!obj.primary)return toast('Choisissez une spécialité principale');
+      const withFiles=async()=>{
+        if(ui.cvFileObj){const u=await uploadDoc(ui.cvFileObj,'cv');obj.cvName=ui.cvFileObj.name;if(u)obj.cvAsset=u;}
+        if(ui.dcFileObj){const u=await uploadDoc(ui.dcFileObj,'dc');obj.dcName=ui.dcFileObj.name;if(u)obj.dcAsset=u;}
+        if(ui.photo){obj.photo=ui.photo;}
+        ui.cvFileObj=ui.dcFileObj=null;ui.photo=null;delete DRAFTS.photo;persistDrafts();
+      };
+      if(ex){withFiles().then(()=>{save('cands',obj);ui.editCand=false;ui.cvDraft=null;toast('Profil mis à jour');});return;}
+      if(freeStart('cands')){(async()=>{await withFiles();obj.sub={trial:true,startedAt:Date.now()};obj.dispo={active:true,types:[],date:''};await save('cands',obj);ui.cvDraft=null;PROMO_CACHE=null;toast('Inscription gratuite — '+freeLabel(obj)+' — jusqu\'au '+fmtD(subEnd(obj)));render();})();return;}
+      pay('Inscription candidat — 1 an',PRICES.cand,async()=>{await withFiles();obj.sub={paidAt:Date.now(),expiresAt:Date.now()+YEAR,amount:PRICES.cand};obj.dispo={active:true,types:[],date:''};await save('cands',obj);recordPay('cand',PRICES.cand,'Inscription candidat '+obj.name);ui.cvDraft=null;toast('Profil enregistré — abonnement à activer');});
+    };
+    return;
+  }
+  const c=myCand();
+  $('#editC').onclick=()=>{ui.editCand=true;ui.cvText=c.cvText;ui.consent=!!c.consentAt;ui.consentAt=c.consentAt;render();};
+  const r=$('#renew');if(r)r.onclick=()=>pay('Renouvellement inscription candidat — 1 an',PRICES.cand,async()=>{const base=Math.max(Date.now(),subEnd(c)||0);await save('cands',{...c,sub:{paidAt:Date.now(),expiresAt:base+YEAR,amount:PRICES.cand}});recordPay('cand',PRICES.cand,'Renouvellement '+c.name);toast('Inscription renouvelée');});
+  $('#dispoF').onsubmit=e=>{e.preventDefault();const f=new FormData(e.target);const types=f.getAll('types');if(!types.length)return toast('Choisissez au moins un type de recherche');
+    save('cands',{...c,dispo:{date:f.get('date'),zone:f.get('zone'),types,remote:f.get('remote'),rate:f.get('rate'),note:f.get('note'),active:!!f.get('active'),updatedAt:Date.now()}});toast('Annonce enregistrée');};
+  bindLikes();
+};
+
+/* ---------- Filtres géographiques & spécialités ---------- */
+function geoFilters(px,f,cities){
+  const countries=f.zone?ZONES[f.zone]||[]:COUNTRIES;
+  return `<div><label>Zone</label><select id="${px}z"><option value="">Monde entier</option>${Object.keys(ZONES).map(z=>`<option ${f.zone===z?'selected':''}>${z}</option>`).join('')}</select></div>
+   <div><label>Pays</label><select id="${px}co"><option value="">Tous les pays</option>${countries.map(x=>`<option ${f.country===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div><label>Ville</label><input id="${px}ci" list="${px}cl" value="${esc(f.city||'')}" placeholder="Toutes les villes"><datalist id="${px}cl">${cities.map(x=>`<option class="notr" value="${esc(x)}">`).join('')}</datalist></div>`;
+}
+const specOpts = sel => `<optgroup label="Spécialités du lancement">${CORE.map(k=>`<option value="${k}" ${sel===k?'selected':''}>${SPECS[k].n}</option>`).join('')}</optgroup><optgroup label="Autres spécialités">${Object.keys(SPECS).filter(k=>!SPECS[k].core).map(k=>`<option value="${k}" ${sel===k?'selected':''}>${SPECS[k].n}</option>`).join('')}</optgroup>`;
+
+/* ---------- Offres (vue candidat) ---------- */
+function offerItem(o,c){
+  const comp=get('comps',o.compId)||{}; const sc=c?matchScore(c,o).total:null;
+  const l=c?get('links',linkId(c.id,o.compId)):null;
+  const liked=l&&l.candLiked, matched=isMatch(l);
+  return `<div class="item"><div class="item-h">
+    <div style="flex:1;min-width:240px"><h3>${esc(o.title)} ${isDemo(o.id)?'<span class="pill demo">démo</span>':''}</h3>
+     <div class="small muted">${esc(comp.name||'Entreprise')}${compKind(comp)==='CAB'?' <span class="pill blue">cabinet'+(o.client?' — client : '+esc(o.client):'')+'</span>':''}${comp.verif==='ok'||isDemo(comp.id)?' <span class="pill ok">✔ vérifiée</span>':''} · ${esc(o.city||'')}${o.country&&o.country!=='France'?', '+esc(o.country):''} · ${esc(o.remote||'')} · début ${fmtD(o.start)} · ${o.duration?esc(o.duration)+' mois':'durée non précisée'}</div>
+     <div style="margin-top:6px">${specPills(o.specialty,o.secondary)}${(o.contract||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join('')}</div>
+     ${o.description?`<p class="small" style="margin:8px 0 4px">${esc(o.description).slice(0,260)}${o.description.length>260?'…':''}</p>`:''}
+     <div class="small muted">Motif : ${esc(o.motif||'—')}${o.project?' · Projet : '+esc(o.project):''}${(o.software||[]).length?' · Logiciels : '+o.software.map(esc).join(', '):''}</div>
+     ${comp.website?`<div class="small" style="margin-top:4px"><a href="${esc(comp.website)}" target="_blank" rel="noopener">${esc(comp.website)}</a></div>`:''}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">${sc!=null?scoreBox(sc):''}
+     ${c?(matched?`<button class="btn ok sm" data-go="matchs">Match — discuter</button>`:liked?`<span class="pill ok">Intérêt envoyé</span>`:`<button class="btn acc sm" data-like-offer="${o.id}">Je suis intéressé</button>`):''}
+    </div></div></div>`;
+}
+function vOffers(){
+  const c=myCand(); const f=ui.of||{};
+  let list=all('offers').filter(offerOn);
+  const oc=o=>o.country||(get('comps',o.compId)||{}).country||'France';
+  const cityList=[...new Set(list.filter(o=>(!f.zone||zoneOf(oc(o))===f.zone)&&(!f.country||oc(o)===f.country)).map(o=>o.city).filter(Boolean))].sort();
+  if(f.zone)list=list.filter(o=>zoneOf(oc(o))===f.zone);
+  if(f.country)list=list.filter(o=>oc(o)===f.country);
+  if(f.city)list=list.filter(o=>norm(o.city).includes(norm(f.city)));
+  if(f.spec)list=list.filter(o=>o.specialty===f.spec||(!f.mainOnly&&(o.secondary||[]).includes(f.spec)));
+  if(f.ct)list=list.filter(o=>(o.contract||[]).includes(f.ct));
+  if(f.remote)list=list.filter(o=>o.remote===f.remote);
+  if(f.q){const q=norm(f.q);list=list.filter(o=>norm(o.title+' '+o.description+' '+o.city+' '+(o.software||[]).join(' ')+' '+(get('comps',o.compId)||{}).name).includes(q));}
+  list=list.map(o=>({o,s:c?matchScore(c,o).total:0})).sort((a,b)=>b.s-a.s||b.o.createdAt-a.o.createdAt);
+  if(!(subOk(c)||subOk(myComp()))){const n=STATS?STATS.offers:all('offers').filter(offerOn).length;
+    return `<h1>Offres &amp; missions</h1>${(c||myComp())?lockCard(c||myComp(),c?'candidat':'entreprise'):`<div class="card" style="text-align:center;padding:30px"><div class="kpi">${n}</div><p class="muted">offre(s) et mission(s) ouvertes, visibles uniquement par les membres abonnés${trialActive()?' — inscription gratuite jusqu\'au '+fmtD(trialEndTs())+', période prolongée aussi longtemps que nécessaire au démarrage du site':''}.</p><div class="row" style="max-width:460px;margin:0 auto"><button class="btn acc" data-go="candidat">Créer mon profil</button><button class="btn" data-go="entreprise">Inscrire mon entreprise</button></div></div>`}`;}
+  return `<h1>Offres &amp; missions</h1><p class="sub">${c?'Triées selon votre compatibilité.':'Inscrivez-vous comme candidat pour voir votre score de compatibilité et manifester votre intérêt.'}</p>
+  <div class="card" style="padding:12px 14px">
+   <div class="filters" style="margin-bottom:6px">
+    ${geoFilters('f',f,cityList)}
+    <div><label>Spécialité</label><select id="fs"><option value="">Toutes</option>${specOpts(f.spec)}</select></div>
+   </div>
+   <div class="filters" style="margin-bottom:0">
+    <div><label>Contrat</label><select id="fc"><option value="">Tous</option>${CONTRACTS.map(x=>`<option ${f.ct===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>Télétravail</label><select id="fr"><option value="">Indifférent</option>${['Sur site','Hybride','Full remote'].map(x=>`<option ${f.remote===x?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>Mot-clé</label><input id="fq" value="${esc(f.q||'')}" placeholder="Intitulé, logiciel, entreprise"></div>
+    <div style="flex:none;display:flex;flex-direction:column;gap:6px"><label class="switch"><input type="checkbox" id="fsp" ${f.mainOnly?'checked':''}> Spécialité principale uniquement</label><button class="btn ghost sm" id="freset">Réinitialiser</button></div>
+   </div>
+   <div class="small muted" style="margin-top:8px">${list.length} résultat(s)</div>
+  </div>
+  ${c&&!subOk(c)?lockCard(c,'candidat'):''}
+  ${list.length?list.map(x=>offerItem(x.o,c)).join(''):'<div class="card empty">Aucune offre ne correspond.</div>'}`;
+}
+bind.offres=()=>{
+  if(!$('#fq'))return;
+  const up=()=>{const z=$('#fz').value,co=$('#fco').value;ui.of={zone:z,country:(z&&co&&zoneOf(co)!==z)?'':co,city:$('#fci').value,spec:$('#fs').value,mainOnly:$('#fsp').checked,ct:$('#fc').value,remote:$('#fr').value,q:$('#fq').value};render();};
+  ['#fz','#fco','#fs','#fsp','#fc','#fr'].forEach(x=>$(x).onchange=up);['#fq','#fci'].forEach(x=>$(x).oninput=up);
+  $('#freset').onclick=()=>{ui.of={};render();};bindLikes();
+};
+function openCV(id){
+  const c=get('cands',id), p=myComp();
+  if(!c)return;
+  if(!p||!subOk(p))return toast('La consultation des CV est réservée aux entreprises abonnées');
+  const pdf=docLink(c.cvAsset,'Ouvrir le CV original'), dc=docLink(c.dcAsset,'Ouvrir le dossier de compétences');
+  modal(`<div class="item-h"><div style="display:flex;gap:12px;align-items:center">${avatar(c,isMatch(get('links',linkId(c.id,p.id))))}<div><h2 style="margin:0">CV — ${esc(c.name)}</h2>
+    <div class="small muted">${esc(c.level)} · ${c.years?c.years+' ans d\'exp.':'exp. n.c.'} · ${esc(c.city)}${c.country&&c.country!=='France'?', '+esc(c.country):''} · mobilité ${esc(c.mobility||'—')}</div>
+    <div style="margin-top:4px">${specPills(c.primary,c.secondary)}</div></div></div><button class="btn ghost sm" data-close>Fermer</button></div>
+   <div class="small" style="margin-top:10px;display:flex;gap:16px;flex-wrap:wrap">${pdf||(c.cvName?'<span class="muted">CV : '+esc(c.cvName)+' (texte ci-dessous)</span>':'')}${dc||(c.dcName?'<span class="muted">Dossier de compétences : '+esc(c.dcName)+'</span>':'')}</div>
+   ${(c.software||[]).length||(c.norms||[]).length?`<div class="small" style="margin-top:8px">${(c.software||[]).length?'<b>Logiciels :</b> '+c.software.map(esc).join(', '):''}${(c.norms||[]).length?' · <b>Normes :</b> '+c.norms.map(esc).join(', '):''}${(c.sectors||[]).length?' · <b>Secteurs :</b> '+c.sectors.map(esc).join(', '):''}</div>`:''}
+   <div class="cvtext notr">${c.cvText?esc(c.cvText):'<span class="muted">Texte du CV non disponible.</span>'}</div>
+   <p class="small muted" style="margin:10px 0 0">Consultation réservée aux entreprises et cabinets abonnés. Usage strictement limité au recrutement ; toute diffusion à des tiers est interdite (CGU).</p>`,true);
+}
+function bindLikes(){
+  document.querySelectorAll('[data-cv]').forEach(b=>b.onclick=()=>openCV(b.dataset.cv));
+  document.querySelectorAll('[data-like-offer]').forEach(b=>b.onclick=()=>likeFromCand(b.dataset.likeOffer));
+  document.querySelectorAll('[data-like-cand]').forEach(b=>b.onclick=()=>likeFromComp(b.dataset.likeCand,b.dataset.offer));
+}
+async function likeFromCand(offerId){
+  const c=myCand(),o=get('offers',offerId);if(!c)return go('candidat');
+  if(!subOk(c))return toast('Inscription inactive : renouvelez-la pour continuer');
+  const id=linkId(c.id,o.compId); const ex=get('links',id)||{id,candId:c.id,compId:o.compId,createdAt:Date.now()};
+  const l={...ex,candLiked:true,candAt:Date.now(),offerId:ex.offerId||offerId};
+  const demo=isDemo(o.compId);
+  await save('links',l,demo);
+  if(isMatch(l)){openMatch(l);return;}
+  toast('Intérêt envoyé à l\'entreprise');
+  if(demo)setTimeout(()=>{const cur=get('links',id);if(!cur||cur.compLiked)return;const m={...cur,compLiked:true,compAt:Date.now()};save('links',m,true);
+    save('msgs',{id:uid('demo-msg'),linkId:id,side:'comp',authorId:'demo',text:'Bonjour, merci pour votre intérêt ! Votre profil nous intéresse aussi. Êtes-vous disponible pour un échange cette semaine ?',at:Date.now()+1},true);
+    toast('🎉 Match avec '+(get('comps',o.compId)||{}).name+' (démo)');},1800);
+}
+async function likeFromComp(candId,offerId){
+  const p=myComp();if(!p)return go('entreprise');
+  if(!subOk(p))return toast('Abonnement entreprise inactif');
+  const id=linkId(candId,p.id); const ex=get('links',id)||{id,candId,compId:p.id,createdAt:Date.now()};
+  const l={...ex,compLiked:true,compAt:Date.now(),offerId:offerId||ex.offerId||''};
+  const demo=isDemo(candId);
+  await save('links',l,demo);
+  if(isMatch(l)){openMatch(l);return;}
+  toast('Intérêt envoyé au candidat');
+  if(demo)setTimeout(()=>{const cur=get('links',id);if(!cur||cur.candLiked)return;save('links',{...cur,candLiked:true,candAt:Date.now()},true);
+    save('msgs',{id:uid('demo-msg'),linkId:id,side:'cand',authorId:'demo',text:'Bonjour, merci pour votre message. Le poste m\'intéresse, je suis disponible pour en parler.',at:Date.now()+1},true);
+    toast('🎉 Match avec '+(get('cands',candId)||{}).name+' (démo)');},1800);
+}
+function openMatch(l){ui.chat=l.id;toast('🎉 C\'est un match ! Le canal de discussion est ouvert.');go('matchs');}
+
+/* ---------- Profils (vue entreprise) ---------- */
+function candItem(c,p,offer){
+  const sc=offer?matchScore(c,offer).total:null; const l=p?get('links',linkId(c.id,p.id)):null;
+  const d=c.dispo||{}; const matched=isMatch(l);
+  return `<div class="item"><div class="item-h">
+   ${avatar(c,matched)}
+   <div style="flex:1;min-width:240px"><h3>${matched?esc(c.name):esc(c.name.split(' ')[0])+' '+esc((c.name.split(' ')[1]||'').charAt(0))+'.'} ${isDemo(c.id)?'<span class="pill demo">démo</span>':''}</h3>
+    <div class="small muted">${esc(c.level)} · ${c.years?c.years+' ans d\'exp.':'exp. n.c.'} · ${esc(c.city)} · mobilité ${esc(c.mobility||'—')}</div>
+    <div style="margin-top:6px">${specPills(c.primary,c.secondary)}</div>
+    <div class="small" style="margin-top:6px">${d.active!==false&&d.date?`<span class="pill ok">Dispo ${fmtD(d.date)}</span>`:'<span class="pill">Disponibilité non publiée</span>'}${(d.types||[]).map(x=>`<span class="pill acc">${esc(x)}</span>`).join('')}${d.rate?`<span class="pill">${esc(d.rate)}</span>`:''}</div>
+    ${(c.software||[]).length?`<div class="small muted" style="margin-top:4px">Logiciels : ${c.software.map(esc).join(', ')}</div>`:''}
+    ${(c.sectors||[]).length?`<div class="small muted">Secteurs : ${c.sectors.map(esc).join(', ')}</div>`:''}
+    ${d.note?`<p class="small" style="margin:6px 0 0">« ${esc(d.note)} »</p>`:''}
+    ${matched?`<div class="small" style="margin-top:6px">✉ ${esc(c.email)} ${c.phone?'· ☎ '+esc(c.phone):''}</div>`:''}
+   </div>
+   <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">${sc!=null?scoreBox(sc):''}
+    ${p?`<button class="btn ghost sm" data-cv="${c.id}" ${subOk(p)?'':'disabled title="Réservé aux entreprises abonnées"'}>📄 Voir le CV complet</button>`:''}
+    ${p?(matched?`<button class="btn ok sm" data-go="matchs">Match — discuter</button>`:l&&l.compLiked?`<span class="pill ok">Intérêt envoyé</span>`:`<button class="btn acc sm" data-like-cand="${c.id}" data-offer="${offer?offer.id:''}">${l&&l.candLiked?'Il/elle est intéressé(e) — accepter':'Ce profil m\'intéresse'}</button>`):''}
+    ${l&&l.candLiked&&!matched?'<span class="pill blue">A postulé chez vous</span>':''}
+   </div></div></div>`;
+}
+function vProfiles(){
+  const p=myComp(); const f=ui.pf||{};
+  const myOffers=p?all('offers').filter(o=>o.compId===p.id):[];
+  const ref=f.offer?get('offers',f.offer):null;
+  let list=all('cands').filter(subOk);
+  const cc=c=>c.country||'France';
+  const cityList=[...new Set(list.filter(c=>(!f.zone||zoneOf(cc(c))===f.zone)&&(!f.country||cc(c)===f.country)).map(c=>c.city).filter(Boolean))].sort();
+  const mobOk=(c,geoTest)=>f.mobile&&(c.mobility==='Internationale'||(c.mobility==='Nationale'&&geoTest==='nat'));
+  if(f.zone)list=list.filter(c=>zoneOf(cc(c))===f.zone||(f.mobile&&c.mobility==='Internationale')||norm((c.dispo||{}).zone).includes(norm(f.zone)));
+  if(f.country)list=list.filter(c=>cc(c)===f.country||mobOk(c,'')||norm((c.dispo||{}).zone).includes(norm(f.country)));
+  if(f.city)list=list.filter(c=>norm(c.city).includes(norm(f.city))||norm((c.dispo||{}).zone).includes(norm(f.city))||mobOk(c,(!f.country||cc(c)===f.country)?'nat':''));
+  if(f.spec)list=list.filter(c=>c.primary===f.spec||(!f.mainOnly&&(c.secondary||[]).includes(f.spec)));
+  if(f.before)list=list.filter(c=>(c.dispo||{}).date&&(c.dispo||{}).date<=f.before);
+  if(f.ct)list=list.filter(c=>((c.dispo||{}).types||[]).includes(f.ct));
+  if(f.lvl)list=list.filter(c=>c.level===f.lvl);
+  if(f.q){const q=norm(f.q);list=list.filter(c=>norm([c.city,(c.software||[]).join(' '),(c.sectors||[]).join(' '),(c.norms||[]).join(' '),(c.dispo||{}).note].join(' ')).includes(q));}
+  list=list.map(c=>({c,s:ref?matchScore(c,ref).total:0})).sort((a,b)=>b.s-a.s||((a.c.dispo||{}).date||'9').localeCompare((b.c.dispo||{}).date||'9'));
+  if(!p)return `<h1>Profils</h1><div class="card"><p>La consultation des profils est réservée aux entreprises inscrites.</p><button class="btn acc" data-go="entreprise">Inscrire mon entreprise</button></div>
+   <div class="card"><h3>Aperçu</h3><p class="muted">${STATS?STATS.activeCands:0} profils actifs, dont ${CORE.map(k=>((STATS&&STATS.spec&&STATS.spec[k])||0)+' en '+SPECS[k].n.toLowerCase()).join(', ')}.</p></div>`;
+  if(!subOk(p))return `<h1>Profils</h1>${lockCard(p,'entreprise')}`;
+  return `<h1>Profils</h1><p class="sub">Choisissez une de vos offres pour trier les profils par compatibilité. Les coordonnées s'affichent après un match.</p>
+  ${!subOk(p)?'<div class="note bad">Votre abonnement entreprise n\'est pas actif.</div>':''}
+  <div class="card" style="padding:12px 14px">
+   <div class="filters" style="margin-bottom:6px">
+    ${geoFilters('p',f,cityList)}
+    <div style="flex:none;align-self:center"><label class="switch" title="Inclut les candidats à mobilité internationale (ou nationale pour une ville du même pays) et ceux dont la zone recherchée correspond"><input type="checkbox" id="pmob" ${f.mobile?'checked':''}> Inclure les profils mobiles</label></div>
+   </div>
+   <div class="filters" style="margin-bottom:0">
+   <div><label>Comparer à l'offre</label><select id="po"><option value="">— aucune —</option>${myOffers.map(o=>`<option value="${o.id}" ${f.offer===o.id?'selected':''}>${esc(o.title)}</option>`).join('')}</select></div>
+   <div><label>Spécialité</label><select id="ps"><option value="">Toutes</option>${specOpts(f.spec)}</select></div>
+   <div><label>Fonction</label><select id="pl"><option value="">Toutes</option>${['Ingénieur','Projeteur','Dessinateur','Chef de projet','Technicien'].map(x=>`<option ${f.lvl===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div><label>Type de contrat</label><select id="pc"><option value="">Tous contrats</option>${CONTRACTS.map(x=>`<option ${f.ct===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div><label>Disponible avant le</label><input type="date" id="pd" value="${esc(f.before||'')}"></div>
+   <div><label>Mot-clé</label><input id="pq" value="${esc(f.q||'')}" placeholder="Logiciel, secteur, norme"></div>
+   <div style="flex:none;display:flex;flex-direction:column;gap:6px"><label class="switch"><input type="checkbox" id="psp" ${f.mainOnly?'checked':''}> Spécialité principale uniquement</label><button class="btn ghost sm" id="preset">Réinitialiser</button></div>
+   </div>
+   <div class="small muted" style="margin-top:8px">${list.length} profil(s)</div>
+  </div>
+  ${list.length?list.map(x=>candItem(x.c,p,ref)).join(''):'<div class="card empty">Aucun profil ne correspond.</div>'}`;
+}
+bind.profils=()=>{
+  if(!$('#po'))return;
+  const up=()=>{const z=$('#pz').value,co=$('#pco').value;ui.pf={zone:z,country:(z&&co&&zoneOf(co)!==z)?'':co,city:$('#pci').value,mobile:$('#pmob').checked,offer:$('#po').value,spec:$('#ps').value,mainOnly:$('#psp').checked,lvl:$('#pl').value,ct:$('#pc').value,before:$('#pd').value,q:$('#pq').value};render();};
+  ['#pz','#pco','#pmob','#po','#ps','#psp','#pl','#pc','#pd'].forEach(s=>$(s).onchange=up);['#pq','#pci'].forEach(s=>$(s).oninput=up);
+  $('#preset').onclick=()=>{ui.pf={offer:ui.pf&&ui.pf.offer};render();};bindLikes();
+};
+
+/* ---------- Espace entreprise ---------- */
+function vComp(){
+  if(!AUTH)return authGate('entreprise');
+  const p=myComp();
+  if(!p||ui.editComp){
+    const b=p||{};
+    return `<h1>${p?'Modifier l\'entreprise':'Inscription entreprise'}</h1><p class="sub">Bureaux d'études, ensembliers, exploitants, ESN d'ingénierie…</p>
+    <div class="card" style="max-width:760px"><form id="compF">
+     <label>Type de compte <span class="req">*</span></label>
+     <div class="chk" id="kindSel">${ACCOUNT_KINDS.map(([k,v,pr])=>`<label><input type="radio" name="kind" value="${k}" ${(b.kind||compKind(b.legal?b:{legal:'SAS'}))===k?'checked':''}>${v} — ${eur(pr)}/an</label>`).join('')}</div>
+     <div class="row"><div><label>Raison sociale <span class="req">*</span></label><input name="name" required value="${esc(b.name||'')}"></div>
+     <div><label>Forme juridique <span class="req">*</span></label><select name="legal" id="legalSel">${LEGAL.map(([k,v])=>`<option value="${k}" ${b.legal===k?'selected':''}>${v}</option>`).join('')}</select></div></div>
+     <div class="row"><div><label>Pays <span class="req">*</span></label><select name="country" id="ctySel">${COUNTRIES.map(x=>`<option ${(b.country||'France')===x?'selected':''}>${x}</option>`).join('')}</select></div>
+     <div><label id="regLbl">SIRET <span class="req">*</span></label><input name="siret" required value="${esc(b.siret||'')}" placeholder="14 chiffres"></div></div>
+     <label>Site internet <span class="req">*</span></label><input name="website" required value="${esc(b.website||'')}" placeholder="https://www.votre-entreprise.fr">
+     <div class="row"><div><label>Ville <span class="req">*</span></label><input name="city" required value="${esc(b.city||'')}"></div>
+     <div><label>Secteur principal</label><select name="sector">${Object.keys(SECTORS).map(x=>`<option ${b.sector===x?'selected':''}>${x}</option>`).join('')}<option ${b.sector==='Multi-secteurs'?'selected':''}>Multi-secteurs</option></select></div></div>
+     <div class="row"><div><label>Contact recrutement <span class="req">*</span></label><input name="contact" required value="${esc(b.contact||'')}"></div>
+     <div><label>E-mail <span class="req">*</span></label><input name="email" type="email" required value="${esc(b.email||(AUTH&&AUTH.email)||'')}"></div></div>
+     <label>Présentation</label><textarea name="about">${esc(b.about||'')}</textarea>
+     <h3 style="margin-top:16px">Justificatifs <span class="muted small">(PDF ou image, 20 Mo max — vérifiés par M4X avant validation du compte)</span></h3>
+     <label>Extrait d'immatriculation de moins de 3 mois (Kbis, registre du commerce ou équivalent étranger) <span class="req">*</span></label>
+     <div class="doc"><input type="file" data-doc="kbis" accept=".pdf,.png,.jpg,.jpeg"><span class="small muted">${b.docs&&b.docs.kbis?'Enregistré : '+esc(b.docs.kbis.name):''}</span></div>
+     <label>Attestation de vigilance URSSAF / attestation de régularité fiscale et sociale <span class="muted small">(recommandé)</span></label>
+     <div class="doc"><input type="file" data-doc="vigilance" accept=".pdf,.png,.jpg,.jpeg"><span class="small muted">${b.docs&&b.docs.vigilance?'Enregistré : '+esc(b.docs.vigilance.name):''}</span></div>
+     <div id="cabDoc"><label>Cabinet de recrutement : justificatif d'activité (contrat client, carte professionnelle, attestation) <span class="req">*</span></label>
+     <div class="doc"><input type="file" data-doc="cabinet" accept=".pdf,.png,.jpg,.jpeg"><span class="small muted">${b.docs&&b.docs.cabinet?'Enregistré : '+esc(b.docs.cabinet.name):''}</span></div></div>
+     <label class="switch" style="margin-top:12px"><input type="checkbox" name="cgv" required ${p?'checked':''}> J'accepte les <a href="#legal" data-go="legal">conditions générales de vente et d'utilisation</a> <span class="req">*</span></label>
+     ${p?'':`<div class="note" id="priceNote"></div>`}
+     <div class="row" style="margin-top:12px">${p?'<button type="button" class="btn ghost" id="cancelComp">Annuler</button>':''}<button class="btn acc" id="compBtn">${p?'Enregistrer':'Continuer vers le paiement'}</button></div>
+    </form></div>`;
+  }
+  const exp=subEnd(p), ok=subOk(p), dl=exp?daysLeft(exp):0, price=compPrice(p);
+  const offers=all('offers').filter(o=>o.compId===p.id).sort((a,b)=>b.createdAt-a.createdAt);
+  const incoming=all('links').filter(l=>l.compId===p.id&&l.candLiked&&!l.compLiked&&subOk(get('cands',l.candId)));
+  return `<h1>${esc(p.name)}</h1><p class="sub"><a href="${esc(p.website)}" target="_blank" rel="noopener">${esc(p.website)}</a> · ${esc(p.city)} · SIRET <span class="mono">${esc(p.siret)}</span></p>
+  ${!ok?`<div class="note bad">${isTrial(p)?'Votre période gratuite est terminée depuis le '+fmtD(exp)+' : vos offres sont hors ligne et les fonctions du site sont désactivées.':'Abonnement '+(exp?'expiré le '+fmtD(exp):'inactif')+'.'} <button class="btn sm acc" id="renewC">Prendre un abonnement d'un an (${eur(price)})</button></div>`:isTrial(p)?`<div class="note ${dl<=3?'bad':'ok'}">Compte gratuit — <b>${esc(freeLabel(p))}</b> — jusqu'au ${fmtD(exp)}${dl<=3?` — <b>plus que ${dl} jour(s)</b> : sans abonnement, vos offres seront retirées et le site deviendra inutilisable`:''}. <button class="btn sm ${dl<=3?'acc':'ghost'}" id="renewC">S'abonner dès maintenant (${eur(price)}/an, à partir du ${fmtD(exp)})</button></div>`:dl<=30?`<div class="note">Abonnement : expire dans ${dl} jour(s), le ${fmtD(exp)}, sans reconduction automatique. <button class="btn sm acc" id="renewC">Renouveler (${eur(price)})</button></div>`:''}
+  <div class="grid g3">
+   <div class="card"><h3>Abonnement</h3>${ok?`<span class="pill ok">${isTrial(p)?esc(freeLabel(p)):'actif'}</span> jusqu'au ${fmtD(exp)}`:'<span class="pill bad">inactif</span>'}<p class="small muted">${esc(kindLabel(compKind(p)))} : ${eur(compPrice(p))}/an</p><p class="small">Justificatifs : ${verifPill(p)}</p><p class="small">${Object.entries(p.docs||{}).map(([k,d])=>docLink(d,DOCN[k])||esc(DOCN[k]+' ('+d.name+')')).join('<br>')||'<span class="muted">aucun</span>'}</p><button class="btn ghost sm" id="editP">Modifier les informations</button></div>
+   <div class="card"><h3>Candidats intéressés</h3><div class="kpi">${incoming.length}</div><div class="kpi-l">en attente de votre réponse</div></div>
+   <div class="card"><h3>Offres en ligne</h3><div class="kpi">${offers.filter(offerOn).length}</div><div class="kpi-l">sur ${offers.length} publiée(s)</div></div>
+  </div>
+  ${incoming.length?`<div class="card"><h2>Candidats qui ont manifesté leur intérêt</h2>${incoming.map(l=>{const c=get('cands',l.candId);return c?candItem(c,p,get('offers',l.offerId)):''}).join('')}</div>`:''}
+  ${!ok?'<div class="note bad small">Vos offres sont <b>masquées</b> aux candidats tant que l\'abonnement n\'est pas actif. Elles restent enregistrées et réapparaissent (dans leur durée de validité) dès votre abonnement.</div>':''}
+  <div class="card"><div class="item-h"><h2>Mes offres</h2><button class="btn acc sm" id="newOffer" ${ok&&p.verif==='ok'?'':'disabled'}>+ Nouvelle offre (${trialActive()||launch().offersFree?'gratuite au lancement':'10 €'})</button></div>
+   ${p.verif!=='ok'?`<div class="note blue small">${p.verif==='ko'?'Vos justificatifs ont été refusés : modifiez vos informations pour en envoyer de nouveaux.':'La publication d\'offres est ouverte dès que vos justificatifs sont vérifiés par l\'équipe M4X (sous 48 h ouvrées).'}</div>`:''}
+   ${ui.offerForm?offerForm():''}
+   ${offers.length?`<table><thead><tr><th>Offre</th><th>Spécialité</th><th>Statut</th><th>Fin</th><th></th></tr></thead><tbody>${offers.map(o=>{
+     const exp=o.expiresAt<=Date.now(); const st=exp?'<span class="pill">expirée</span>':!o.active?'<span class="pill warn">désactivée</span>':ok?'<span class="pill ok">en ligne</span>':'<span class="pill bad">masquée (abonnement)</span>';
+     return `<tr><td><b>${esc(o.title)}</b><div class="small muted">${(o.contract||[]).join(', ')} · ${esc(o.motif)}</div></td><td>${esc(specName(o.specialty))}</td><td>${st}</td><td class="small">${fmtD(o.expiresAt)}${!exp?` <span class="muted">(${daysLeft(o.expiresAt)} j)</span>`:''}</td>
+     <td style="white-space:nowrap">${exp?`<button class="btn sm acc" data-repub="${o.id}" ${ok?'':'disabled'}>Republier 1 mois (10 €)</button>`:`<button class="btn sm ghost" data-toggle="${o.id}">${o.active?'Désactiver':'Réactiver'}</button>`} <button class="btn sm ghost" data-see="${o.id}">Profils</button></td></tr>`;}).join('')}</tbody></table>`:'<div class="empty">Aucune offre publiée.</div>'}
+  </div>`;
+}
+function offerForm(){
+  return `<form id="offerF" class="card" style="background:#fafbfd">
+   <h3>Nouvelle offre de poste ou de mission</h3>
+   <div class="row"><div><label>Intitulé <span class="req">*</span></label><input name="title" required placeholder="ex. Projeteur tuyauterie PDMS — projet EPR2"></div>
+   <div><label>Spécialité principale <span class="req">*</span></label><select name="specialty" required>${CORE.map(k=>`<option value="${k}">${SPECS[k].n}</option>`).join('')}</select></div></div>
+   <label>Spécialités secondaires souhaitées</label><div class="chk">${Object.entries(SPECS).map(([k,s])=>`<label><input type="checkbox" name="secondary" value="${k}">${s.n}</label>`).join('')}</div>
+   <label>Type de contrat <span class="req">*</span></label><div class="chk">${CONTRACTS.map(x=>`<label><input type="checkbox" name="contract" value="${x}">${x}</label>`).join('')}</div>
+   <div class="row"><div><label>Début souhaité <span class="req">*</span></label><input type="date" name="start" required></div>
+   <div><label>Durée (mois)</label><input type="number" name="duration" min="1" max="60" placeholder="ex. 12"></div>
+   <div><label>Pays <span class="req">*</span></label><select name="country">${COUNTRIES.map(x=>`<option ${(myComp()||{}).country===x?'selected':''}>${x}</option>`).join('')}</select></div>
+   <div><label>Lieu <span class="req">*</span></label><input name="city" required></div>
+   <div><label>Télétravail</label><select name="remote"><option>Sur site</option><option>Hybride</option><option>Full remote</option></select></div></div>
+   <label>Logiciels requis</label><input name="software" placeholder="PDMS, Caesar II…">
+   <div class="note blue small"><b>Besoin réel et non permanent.</b> Les annonces « vivier » ou permanentes ne sont pas acceptées. Indiquez le motif et le projet concerné.</div>
+   <div class="row"><div><label>Motif du besoin <span class="req">*</span></label><select name="motif" required>${MOTIFS.map(x=>`<option>${x}</option>`).join('')}</select></div>
+   <div><label>Projet / affaire concerné(e) <span class="req">*</span></label><input name="project" required placeholder="ex. Revamping unité de distillation"></div></div>
+   ${compKind(myComp()||{})==='CAB'?`<div class="row"><div><label>Client final <span class="req">*</span> <span class="muted small">(cabinet de recrutement)</span></label><input name="client" required placeholder="Nom du client ou « Confidentiel »"></div><div><label>Secteur du client <span class="req">*</span></label><select name="clientSector">${Object.keys(SECTORS).map(x=>`<option>${x}</option>`).join('')}</select></div></div>`:''}
+   <label>Description de la mission <span class="req">*</span></label><textarea name="description" required minlength="80" placeholder="Contexte, livrables, environnement technique… (80 caractères min.)"></textarea>
+   <label class="switch" style="margin-top:10px"><input type="checkbox" name="attest" required> J'atteste que cette offre correspond à un besoin réel, actuel et non permanent de mon entreprise.</label>
+   <div class="row" style="margin-top:12px"><button type="button" class="btn ghost" id="cancelOffer">Annuler</button><button class="btn acc">Publier pour 1 mois — ${trialActive()||launch().offersFree?'gratuit':'10 €'}</button></div>
+  </form>`;
+}
+bind.entreprise=()=>{
+  if(!AUTH)return;
+  const cf=$('#compF');
+  if(cf){
+    const ls=$('#legalSel'),pn=$('#priceNote'),cb=$('#compBtn'),cs=$('#ctySel');
+    ui.docFiles=ui.docFiles||{};
+    cf.querySelectorAll('[data-doc]').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(!f)return;if(f.size>20*1048576){inp.value='';return toast('Fichier trop lourd (20 Mo max)');}ui.docFiles[inp.dataset.doc]=f;});
+    const kind=()=>(cf.querySelector('[name=kind]:checked')||{}).value||'ENT';
+    const upd=()=>{
+      if(isIndiv(ls.value)&&kind()==='ENT')cf.querySelector('[name=kind][value=EI]').checked=true;
+      $('#cabDoc').style.display=kind()==='CAB'?'':'none';
+      const fr=cs.value==='France';$('#regLbl').innerHTML=(fr?'SIRET':'N° d\'immatriculation (registre du commerce, TVA, EIN…)')+' <span class="req">*</span>';cf.siret.placeholder=fr?'14 chiffres':'Numéro officiel';
+      if(pn){const pr=compPrice({kind:kind()});if(promoOpen('comps')){pn.className='note ok';pn.innerHTML=`<b>Offre premiers inscrits :</b> ${promoCfg('comps').months} mois gratuits à compter de l'inscription — plus que <b>${promoLeft('comps')} place(s)</b> sur ${promoCfg('comps').cap}, jusqu'au ${fmtD(promoEndTs())}. Ensuite : ${eur(pr)}/an (${esc(kindLabel(kind()))}), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else if(trialActive()){pn.className='note ok';pn.innerHTML=`<b>Essai gratuit :</b> compte et annonces offerts jusqu'au ${fmtD(trialEndTs())}, période prolongée aussi longtemps que nécessaire pendant le démarrage du site. Ensuite : ${eur(pr)}/an (${esc(kindLabel(kind()))}), sans reconduction automatique. <b>L\'inscription ne vous engage aucunement vers un abonnement.</b>`;cb.textContent='Créer mon compte gratuitement';}else{pn.innerHTML=`Abonnement <b>${eur(pr)} pour un an</b> (${esc(kindLabel(kind()))}), sans reconduction automatique.`;cb.textContent=`Continuer vers le paiement (${eur(pr)})`;}}
+      translateDom();
+    };
+    ls.onchange=upd;cs.onchange=upd;cf.querySelectorAll('[name=kind]').forEach(r=>r.onchange=upd);upd();
+    const cc=$('#cancelComp');if(cc)cc.onclick=()=>{ui.editComp=false;render();};
+    cf.onsubmit=e=>{e.preventDefault();const f=new FormData(cf);const ex=myComp();
+      const country=f.get('country'), siret=f.get('siret').replace(/\s/g,''), web=f.get('website').trim(), k=kind();
+      if(country==='France'&&!luhnSiret(siret))return toast('SIRET invalide (14 chiffres, clé de contrôle)');
+      if(country!=='France'&&siret.length<4)return toast('Numéro d\'immatriculation requis');
+      if(!validUrl(web))return toast('Adresse du site internet invalide (https://…)');
+      const docs={...((ex&&ex.docs)||{})};
+      if(!ui.docFiles.kbis&&!docs.kbis)return toast('L\'extrait d\'immatriculation est obligatoire');
+      if(k==='CAB'&&!ui.docFiles.cabinet&&!docs.cabinet)return toast('Le justificatif d\'activité de recrutement est obligatoire');
+      const obj={...(ex||{}),id:ex?ex.id:'comp-'+ME,ownerId:ME,kind:k,name:f.get('name').trim(),legal:f.get('legal'),country,siret,website:web,city:f.get('city').trim(),sector:f.get('sector'),contact:f.get('contact').trim(),email:f.get('email').trim(),about:f.get('about'),cgvAt:(ex&&ex.cgvAt)||Date.now(),createdAt:(ex&&ex.createdAt)||Date.now()};
+      const withDocs=async()=>{let changed=false;for(const [key,file] of Object.entries(ui.docFiles)){const u=await uploadDoc(file,key);if(u)docs[key]=u;changed=true;}ui.docFiles={};obj.docs=docs;if(changed||!ex)obj.verif='pending';};
+      if(ex){withDocs().then(()=>{save('comps',obj);ui.editComp=false;toast('Informations enregistrées');});return;}
+      const pr=compPrice(obj);
+      if(freeStart('comps')){(async()=>{await withDocs();obj.sub={trial:true,startedAt:Date.now()};await save('comps',obj);PROMO_CACHE=null;toast('Compte gratuit — '+freeLabel(obj)+' — jusqu\'au '+fmtD(subEnd(obj))+' · justificatifs en cours de vérification');render();})();return;}
+      pay(`Abonnement ${kindLabel(k).toLowerCase()} — 1 an`,pr,async()=>{await withDocs();obj.sub={paidAt:Date.now(),expiresAt:Date.now()+YEAR,amount:pr};await save('comps',obj);recordPay(k==='CAB'?'cab':'comp',pr,'Abonnement '+obj.name);toast('Compte enregistré — abonnement à activer, justificatifs en cours de vérification');});
+    };
+    return;
+  }
+  const p=myComp(); const price=compPrice(p);
+  $('#editP').onclick=()=>{ui.editComp=true;render();};
+  const rc=$('#renewC');if(rc)rc.onclick=()=>pay('Renouvellement abonnement entreprise — 1 an',price,async()=>{const base=Math.max(Date.now(),subEnd(p)||0);await save('comps',{...p,sub:{paidAt:Date.now(),expiresAt:base+YEAR,amount:price}});recordPay('comp',price,'Renouvellement '+p.name);toast('Abonnement renouvelé');});
+  const no=$('#newOffer');if(no)no.onclick=()=>{ui.offerForm=true;render();};
+  const co=$('#cancelOffer');if(co)co.onclick=()=>{ui.offerForm=false;render();};
+  const of=$('#offerF');if(of)of.onsubmit=e=>{e.preventDefault();const f=new FormData(of);
+    const contract=f.getAll('contract');if(!contract.length)return toast('Choisissez au moins un type de contrat');
+    if(String(f.get('description')).trim().length<80)return toast('Description trop courte (80 caractères minimum)');
+    const obj={id:uid('off'),compId:p.id,ownerId:ME,title:f.get('title').trim(),specialty:f.get('specialty'),secondary:f.getAll('secondary').filter(k=>k!==f.get('specialty')),contract,start:f.get('start'),duration:f.get('duration'),city:f.get('city').trim(),remote:f.get('remote'),
+      software:f.get('software').split(',').map(s=>s.trim()).filter(Boolean),motif:f.get('motif'),project:f.get('project').trim(),country:f.get('country'),client:(f.get('client')||'').trim(),clientSector:f.get('clientSector')||'',description:f.get('description').trim(),attest:true,createdAt:Date.now()};
+    if(trialActive()||launch().offersFree){obj.paidAt=Date.now();obj.free=true;obj.expiresAt=Date.now()+MONTH;obj.active=true;save('offers',obj);ui.offerForm=false;toast('Offre en ligne gratuitement pendant la période d\'essai');return;}
+    pay('Annonce de recrutement — 1 mois',PRICES.offer,async()=>{obj.paidAt=Date.now();obj.expiresAt=Date.now()+MONTH;obj.active=true;await save('offers',obj);recordPay('offer',PRICES.offer,'Annonce '+obj.title);ui.offerForm=false;toast('Offre en ligne pour 1 mois');},
+      `<p class="small">« ${esc(obj.title)} » — en ligne jusqu'au ${fmtD(Date.now()+MONTH)}, désactivable à tout moment.</p>`);
+  };
+  document.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const o=get('offers',b.dataset.toggle);save('offers',{...o,active:!o.active});toast(o.active?'Offre désactivée':'Offre réactivée');});
+  document.querySelectorAll('[data-repub]').forEach(b=>b.onclick=()=>{const o=get('offers',b.dataset.repub);
+    modal(`<h2>Republier l'offre ?</h2><p>« ${esc(o.title)} »</p><label class="switch"><input type="checkbox" id="reAtt"> Je confirme que ce besoin est toujours réel et actuel.</label><div class="row" style="margin-top:14px"><button class="btn ghost" data-close>Annuler</button><button class="btn acc" id="reGo">Continuer (10 €)</button></div>`);
+    $('#reGo').onclick=()=>{if(!$('#reAtt').checked)return toast('Confirmez que le besoin est toujours actuel');closeModal();if(trialActive()||launch().offersFree){save('offers',{...o,active:true,paidAt:Date.now(),free:true,expiresAt:Date.now()+MONTH});toast('Offre republiée gratuitement');return;}pay('Republication annonce — 1 mois',PRICES.offer,async()=>{await save('offers',{...o,active:true,paidAt:Date.now(),expiresAt:Date.now()+MONTH});recordPay('offer',PRICES.offer,'Republication '+o.title);toast('Offre republiée pour 1 mois');});};});
+  document.querySelectorAll('[data-see]').forEach(b=>b.onclick=()=>{ui.pf={offer:b.dataset.see};go('profils');});
+  bindLikes();
+};
+
+/* ---------- Matchs & messagerie ---------- */
+function vMatches(){
+  if(!AUTH)return authGate('matchs');
+  const c=myCand(),p=myComp();
+  if(!c&&!p)return `<h1>Matchs &amp; messages</h1><div class="card"><p>Inscrivez-vous comme candidat ou entreprise pour accéder aux matchs.</p><div class="row" style="max-width:420px"><button class="btn acc" data-go="candidat">Espace candidat</button><button class="btn" data-go="entreprise">Espace entreprise</button></div></div>`;
+  if(!(subOk(c)||subOk(p)))return `<h1>Matchs &amp; messages</h1>${lockCard(c||p,c?'candidat':'entreprise')}`;
+  const links=myLinks().filter(l=>{const oc=mySide(l)==='cand'?get('comps',l.compId):get('cands',l.candId);return isDemo(oc&&oc.id)||subOk(oc);}); const matches=links.filter(isMatch).sort((a,b)=>lastAt(b)-lastAt(a));
+  const pendingOut=links.filter(l=>!isMatch(l)&&((c&&l.candId===c.id&&l.candLiked)||(p&&l.compId===p.id&&l.compLiked)));
+  if(!ui.chat||!matches.find(m=>m.id===ui.chat))ui.chat=matches[0]&&matches[0].id;
+  return `<h1>Matchs &amp; messages</h1><p class="sub">Un canal s'ouvre dès que l'intérêt est réciproque.</p>
+  ${matches.length?`<div class="chat"><div class="chat-l">${matches.map(l=>{const o=other(l);const lm=all('msgs').filter(m=>m.linkId===l.id).sort((a,b)=>b.at-a.at)[0];
+     return `<div class="chat-li ${ui.chat===l.id?'on':''}" data-chat="${l.id}"><b>${esc(o.name)}</b> ${isDemo(o.id)?'<span class="pill demo">démo</span>':''}<div class="small muted">${esc(o.sub)}</div><div class="small" style="color:var(--ink2);overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${lm?esc(lm.text):'<i>Nouveau match</i>'}</div></div>`;}).join('')}</div>
+     <div class="chat-r" id="chatR">${chatPane()}</div></div>`:'<div class="card empty">Aucun match pour l\'instant. Manifestez votre intérêt pour des offres ou des profils.</div>'}
+  ${pendingOut.length?`<div class="card" style="margin-top:16px"><h3>En attente de réponse</h3>${pendingOut.map(l=>{const o=other(l);return `<div class="small" style="padding:4px 0">${esc(o.name)} — ${esc(o.sub)} <span class="muted">· envoyé le ${fmtD(l.candAt||l.compAt)}</span></div>`;}).join('')}</div>`:''}`;
+}
+const lastAt = l => Math.max(l.candAt||0,l.compAt||0,...all('msgs').filter(m=>m.linkId===l.id).map(m=>m.at));
+function mySide(l){const c=myCand();return c&&l.candId===c.id?'cand':'comp';}
+function other(l){
+  if(mySide(l)==='cand'){const p=get('comps',l.compId)||{};const o=get('offers',l.offerId);return {id:p.id,name:p.name||'Entreprise',sub:o?o.title:(p.city||''),web:p.website,email:p.email,contact:p.contact};}
+  const c=get('cands',l.candId)||{};return {id:c.id,cand:c,name:c.name||'Candidat',sub:`${c.level||''} · ${specName(c.primary)}`,email:c.email,phone:c.phone};
+}
+function chatPane(){
+  const l=get('links',ui.chat);if(!l)return '';
+  const side=mySide(l),o=other(l);
+  try{localStorage.setItem('m4x_seen_'+l.id,Date.now());}catch(e){}
+  const msgs=all('msgs').filter(m=>m.linkId===l.id).sort((a,b)=>a.at-b.at);
+  return `<div class="chat-h" style="display:flex;gap:10px;align-items:center">${o.cand?avatar(o.cand,true,true):''}<div><b>${esc(o.name)}</b> <span class="small muted">· ${esc(o.sub)}</span><div class="small muted">${o.email?'✉ '+esc(o.email):''}${o.phone?' · ☎ '+esc(o.phone):''}${o.web?` · <a href="${esc(o.web)}" target="_blank" rel="noopener">site</a>`:''}</div></div></div>
+   <div class="chat-m" id="chatM"><div class="msg sys">Match le ${fmtD(Math.max(l.candAt||0,l.compAt||0))} — vous pouvez échanger librement.</div>
+   ${msgs.map(m=>{const mine=m.side===side;const t=!mine&&AUTO_TR?MTR[m.id+'|'+LANG]:null;const diff=t&&t.trim()!==m.text.trim();
+     return `<div class="msg notr ${mine?'me':''}">${esc(diff?t:m.text)}${diff?`<span class="orig">${esc(m.text)}</span>`:''}<span class="t">${fmtT(m.at)}${diff?' · '+esc(tr('traduit automatiquement')):''}</span></div>`;}).join('')}</div>
+${SAMPLE?`   <div class="small" style="padding:6px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><label class="switch"><input type="checkbox" id="autoTr" ${AUTO_TR?'checked':''} ${SAMPLE?'':'disabled'}> Traduire automatiquement les messages reçus en <span class="notr">&nbsp;${esc(langName(LANG))}</span></label>${SAMPLE?'':'<span class="muted">Traduction indisponible dans cette vue</span>'}</div>`:''}
+   <form class="chat-f" id="chatF"><input id="chatIn" placeholder="Votre message…" autocomplete="off" value="${esc(ui.draft||'')}"><button class="btn acc">Envoyer</button></form>`;
+}
+function renderChatOnly(fromTr){const r=$('#chatR');if(!r){ui.typing=false;return render();}const wasTyping=ui.typing;r.innerHTML=chatPane();bindChat();translateDom();const i=$('#chatIn');if(i&&wasTyping){i.focus();i.setSelectionRange(i.value.length,i.value.length);}renderNav();}
+function bindChat(){
+  const m=$('#chatM');if(m)m.scrollTop=m.scrollHeight;
+  const at=$('#autoTr');if(at)at.onchange=()=>{AUTO_TR=at.checked;try{localStorage.setItem('m4x_autotr',AUTO_TR?'1':'0');}catch(e){}renderChatOnly();};
+  const l=get('links',ui.chat);if(l&&AUTO_TR&&SAMPLE){const side=mySide(l);translateMsgs(all('msgs').filter(x=>x.linkId===l.id&&x.side!==side));}
+  const f=$('#chatF');if(!f)return;
+  const i=$('#chatIn');i.oninput=()=>{ui.draft=i.value;};i.onfocus=()=>{ui.typing=true;};i.onblur=()=>{setTimeout(()=>{ui.typing=false;},150);};
+  f.onsubmit=e=>{e.preventDefault();const t=i.value.trim();if(!t)return;const l=get('links',ui.chat);
+    const mine=mySide(l)==='cand'?get('cands',l.candId):get('comps',l.compId);if(!subOk(mine))return toast('Abonnement requis pour envoyer des messages');ui.draft='';
+    save('msgs',{id:uid(isDemo(l.candId)||isDemo(l.compId)?'demo-msg':'msg'),linkId:l.id,side:mySide(l),authorId:ME,text:t.slice(0,4000),at:Date.now()},isDemo(l.candId)||isDemo(l.compId));};
+}
+bind.matchs=()=>{document.querySelectorAll('[data-chat]').forEach(d=>d.onclick=()=>{ui.chat=d.dataset.chat;ui.draft='';ui.typing=false;render();});bindChat();};
+
+/* ---------- Admin ---------- */
+function trialAdmin(){
+  const L=launch(), act=trialActive(), d=trialDays();
+  const nT=[...all('cands'),...all('comps')].filter(x=>!isDemo(x.id)&&isTrial(x)).length;
+  return `<div class="card" style="border:2px solid ${act?(d<=3?'var(--bad)':'var(--ok)'):'var(--line)'}">
+   <div class="item-h"><h2>Lancement — essai gratuit et promotion</h2>${act?`<span class="pill ${d<=3?'bad':'ok'}">active · fin dans ${d} j</span>`:L.trialOn?'<span class="pill bad">terminée</span>':'<span class="pill">désactivée</span>'}</div>
+   ${act&&d<=3?`<div class="note bad">Fin de l'essai dans ${d} jour(s). Les ${nT} compte(s) d'essai seront bloqués le ${fmtD(trialEndTs())} sauf prolongation. Les utilisateurs concernés voient déjà l'avertissement.</div>`:''}
+   <div class="row" style="align-items:flex-end">
+    <div><label class="switch"><input type="checkbox" id="trOn" ${L.trialOn?'checked':''}> Essai gratuit activé (affiché en première page)</label></div>
+    <div><label>Date de fin de l'essai</label><input type="date" id="trEnd" value="${esc(L.end)}"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn ghost sm" data-ext="15">+15 jours</button><button class="btn ghost sm" data-ext="30">+1 mois</button><button class="btn ghost sm" data-ext="90">+3 mois</button></div>
+    <div style="flex:none"><button class="btn acc" id="trSave">Enregistrer</button></div>
+   </div>
+   <h3 style="margin-top:16px">Promotion « premiers inscrits »</h3>
+   <div class="row" style="align-items:flex-end">
+    <div><label class="switch"><input type="checkbox" id="prOn" ${L.promoOn?'checked':''}> Promotion activée (compteur en première page)</label></div>
+    <div><label>Fin de la promotion</label><input type="date" id="prEnd" value="${esc(L.promoEnd)}"></div>
+    <div><label>Individus : places / mois</label><div style="display:flex;gap:6px"><input type="number" id="prCC" min="0" value="${esc(L.candCap)}"><input type="number" id="prCM" min="0" max="24" value="${esc(L.candMonths)}"></div></div>
+    <div><label>Entreprises : places / mois</label><div style="display:flex;gap:6px"><input type="number" id="prEC" min="0" value="${esc(L.compCap)}"><input type="number" id="prEM" min="0" max="24" value="${esc(L.compMonths)}"></div></div>
+   </div>
+   <label class="switch" style="margin-top:10px"><input type="checkbox" id="prOF" ${L.offersFree?'checked':''}> Annonces de recrutement gratuites (tant que le paiement en ligne n'est pas actif)</label>
+   <p class="small" style="margin:8px 0 0">Inscrits : <b>${realCount('cands')}</b> / ${L.candCap} individus · <b>${realCount('comps')}</b> / ${L.compCap} entreprises et cabinets.</p>
+   <p class="small muted" style="margin:10px 0 0">${nT} compte(s) d'essai. Pendant l'essai : inscriptions et annonces gratuites. Une prolongation s'applique immédiatement à tous les comptes d'essai. Alertes affichées 3 jours avant la fin : à vous (bandeau sur toutes les pages) et aux utilisateurs.</p>
+  </div>`;
+}
+
+function vAdmin(){
+  const pays=all('pays').sort((a,b)=>b.at-a.at); const tot=k=>pays.filter(p=>!k||p.kind===k).reduce((s,p)=>s+p.amount,0);
+  const cands=all('cands'),comps=all('comps'),offers=all('offers');
+  const bySpec=CORE.map(k=>({k,n:cands.filter(c=>c.primary===k).length,o:offers.filter(o=>o.specialty===k&&offerOn(o)).length}));
+  const maxN=Math.max(1,...bySpec.map(x=>Math.max(x.n,x.o)));
+  return `<h1>Administration</h1><p class="sub">Vue d'ensemble de la plateforme${DB?'':' (mode local)'}. ${SHOW_DEMO?'Les données de démonstration sont incluses.':''}</p>
+  ${trialAdmin()}
+  <div class="grid g4">
+   <div class="card"><div class="kpi">${eur(tot())}</div><div class="kpi-l">chiffre d'affaires encaissé</div></div>
+   <div class="card"><div class="kpi">${eur(tot('cand'))}</div><div class="kpi-l">inscriptions candidats</div></div>
+   <div class="card"><div class="kpi">${eur(tot('comp')+tot('cab'))}</div><div class="kpi-l">abonnements entreprises &amp; cabinets</div></div>
+   <div class="card"><div class="kpi">${eur(tot('offer'))}</div><div class="kpi-l">annonces</div></div>
+  </div>
+  <div class="grid g2">
+   <div class="card"><h3>Profils et offres actives par spécialité</h3>
+    ${bySpec.map(x=>`<div class="spec-row"><span>${SPECS[x.k].n}</span><div><div class="bar p"><i style="width:${100*x.n/maxN}%"></i></div><div class="bar" style="margin-top:3px"><i style="width:${100*x.o/maxN}%"></i></div></div><span class="mono small">${x.n}/${x.o}</span></div>`).join('')}
+    <p class="small muted">Barre foncée : profils · barre orange : offres en ligne.</p></div>
+   <div class="card"><h3>Activité</h3><table><tbody>
+    <tr><td>Candidats (actifs / total)</td><td class="mono">${cands.filter(subOk).length} / ${cands.length}</td></tr>
+    <tr><td>Entreprises (actives / total)</td><td class="mono">${comps.filter(subOk).length} / ${comps.length}</td></tr>
+    <tr><td>Offres (en ligne / total)</td><td class="mono">${offers.filter(offerOn).length} / ${offers.length}</td></tr>
+    <tr><td>Intérêts exprimés</td><td class="mono">${all('links').length}</td></tr>
+    <tr><td>Matchs</td><td class="mono">${all('links').filter(isMatch).length}</td></tr>
+    <tr><td>Messages</td><td class="mono">${all('msgs').length}</td></tr>
+    <tr><td>Abonnements expirant sous 30 jours</td><td class="mono">${[...cands,...comps].filter(x=>subOk(x)&&daysLeft(subEnd(x))<=30).length}</td></tr>
+   </tbody></table></div>
+  </div>
+  <div class="card"><h3>Entreprises</h3><table><thead><tr><th>Raison sociale</th><th>Type</th><th>Immatriculation / site</th><th>Justificatifs</th><th>Abonnement</th><th></th></tr></thead><tbody>
+   ${comps.sort((a,b)=>(a.verif==='pending'?0:1)-(b.verif==='pending'?0:1)).map(c=>`<tr><td>${esc(c.name)} ${isDemo(c.id)?'<span class="pill demo">démo</span>':''}<div class="small muted">${esc(c.country||'France')} · ${esc(c.legal)}</div></td><td class="small">${esc(kindLabel(compKind(c)))}</td><td class="small"><span class="mono">${esc(c.siret)}</span><br><a href="${esc(c.website)}" target="_blank" rel="noopener">${esc(c.website)}</a></td>
+   <td class="small">${verifPill(c)}<br>${Object.entries(c.docs||{}).map(([k,d])=>docLink(d,DOCN[k])||esc(DOCN[k])+' <span class="muted">(non stocké)</span>').join('<br>')}</td>
+   <td>${subOk(c)?'<span class="pill ok">'+fmtD(subEnd(c))+'</span>':'<span class="pill bad">inactif</span>'}</td>
+   <td style="white-space:nowrap">${IS_OWNER&&!isDemo(c.id)?`<button class="btn sm" data-grant="comps:${c.id}">Activer 1 an</button> <button class="btn sm ok" data-verif="${c.id}:ok">Valider</button> <button class="btn sm ghost" data-verif="${c.id}:ko">Refuser</button> <button class="btn sm ghost" data-del="comps:${c.id}">Supprimer</button>`:''}</td></tr>`).join('')||'<tr><td colspan="6" class="muted">—</td></tr>'}
+  </tbody></table></div>
+  <div class="card"><h3>Candidats</h3><table><thead><tr><th>Nom</th><th>Spécialités</th><th>Pays / ville</th><th>Documents</th><th>Consentement</th><th>Inscription</th><th></th></tr></thead><tbody>
+   ${cands.map(c=>`<tr><td><div style="display:flex;gap:8px;align-items:center">${avatar(c,true,true)}<div>${esc(c.name)} ${isDemo(c.id)?'<span class="pill demo">démo</span>':''}<div class="small muted">${esc(c.level)}</div></div></div></td><td>${specPills(c.primary,[])}</td><td class="small">${esc(c.country||'France')} · ${esc(c.city)}</td><td class="small">${docLink(c.cvAsset,'CV')||esc(c.cvName||'—')}<br>${docLink(c.dcAsset,'Dossier')||esc(c.dcName||'—')}</td><td class="small">${c.consentAt?fmtD(c.consentAt):isDemo(c.id)?'démo':'—'}</td><td>${subOk(c)?'<span class="pill ok">'+fmtD(subEnd(c))+'</span>':'<span class="pill bad">inactif</span>'}${isTrial(c)?'<div class="small muted">'+esc(freeLabel(c))+'</div>':''}</td><td style="white-space:nowrap">${IS_OWNER?`<button class="btn sm" data-grant="cands:${c.id}">Activer 1 an</button> <button class="btn sm ghost" data-del="cands:${c.id}">Supprimer</button>`:''}</td></tr>`).join('')||'<tr><td colspan="7" class="muted">—</td></tr>'}
+  </tbody></table></div>
+  <div class="card"><h3>Offres — contrôle « besoin réel »</h3><table><thead><tr><th>Offre</th><th>Entreprise</th><th>Motif / projet</th><th>Statut</th><th></th></tr></thead><tbody>
+   ${offers.sort((a,b)=>b.createdAt-a.createdAt).map(o=>`<tr><td>${esc(o.title)}</td><td>${esc((get('comps',o.compId)||{}).name||'')}</td><td class="small">${esc(o.motif)}<br><span class="muted">${esc(o.project)}</span></td><td>${offerOn(o)?'<span class="pill ok">en ligne</span>':'<span class="pill">hors ligne</span>'}</td><td>${IS_OWNER?`<button class="btn sm ghost" data-del="offers:${o.id}">Retirer</button>`:''}</td></tr>`).join('')||'<tr><td colspan="5" class="muted">—</td></tr>'}
+  </tbody></table></div>
+  <div class="card"><div class="item-h"><h3>Comptes utilisateurs</h3><button class="btn sm ghost" id="loadUsers">Afficher les comptes</button></div><div id="usersBox" class="small ${ui.adminUsers?'':'muted'}">${ui.adminUsers?`<table><thead><tr><th>E-mail</th><th>Créé le</th><th></th></tr></thead><tbody>${ui.adminUsers.map(u=>`<tr><td class="notr">${esc(u.email)}</td><td>${fmtD(u.created_at)}</td><td><button class="btn sm ghost" data-rpw="${esc(u.email)}">Réinitialiser le mot de passe</button></td></tr>`).join('')}</tbody></table>`:'Liste des adresses e-mail inscrites, avec réinitialisation du mot de passe.'}</div></div>
+  <div class="card"><h3>Paiements enregistrés</h3><p class="small muted" style="margin-top:-4px">Règlements reçus (virement) saisis via « Activer 1 an ». Messages échangés sur la plateforme : ${ADMIN_MSGS}.</p><table><thead><tr><th>Date</th><th>Objet</th><th>Montant</th></tr></thead><tbody>
+   ${pays.slice(0,25).map(p=>`<tr><td class="small">${fmtT(p.at)}</td><td>${esc(p.label)}</td><td class="mono">${eur(p.amount)}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">—</td></tr>'}
+  </tbody></table></div>`;
+}
+bind.admin=()=>{
+  document.querySelectorAll('[data-grant]').forEach(b=>b.onclick=()=>{const [col,id]=b.dataset.grant.split(':');const x=get(col,id);if(!x)return;
+    const def=col==='cands'?PRICES.cand:compPrice(x);
+    modal(`<h2>Activer un abonnement d'un an</h2><p><b>${esc(x.name)}</b> — à utiliser après réception du règlement (virement). Démarre à la fin de la période en cours.</p>
+     <label>Montant reçu (€)</label><input type="number" id="grAmt" min="0" value="${def}"><div class="row" style="margin-top:14px"><button class="btn ghost" data-close>Annuler</button><button class="btn acc" id="grGo">Activer</button></div>`);
+    $('#grGo').onclick=async()=>{try{await api('POST','/api/admin/grant',{col,id,amount:+$('#grAmt').value||0});closeModal();toast('Abonnement activé pour 1 an');loadData();}catch(e){toast(e.message);}};});
+  const lu=$('#loadUsers');if(lu)lu.onclick=async()=>{try{const r=await api('GET','/api/admin/users');ui.adminUsers=r.users;render();}catch(e){toast(e.message);}};
+  document.querySelectorAll('[data-rpw]').forEach(b=>b.onclick=()=>{
+    modal(`<h2>Réinitialiser le mot de passe ?</h2><p>Un mot de passe provisoire va être créé pour <b class="notr">${esc(b.dataset.rpw)}</b> ; ses sessions en cours seront fermées.</p><div class="row"><button class="btn ghost" data-close>Annuler</button><button class="btn acc" id="rpwGo">Réinitialiser</button></div>`);
+    $('#rpwGo').onclick=async()=>{try{const x=await api('POST','/api/admin/reset-password',{email:b.dataset.rpw});
+      modal(`<h2>Mot de passe provisoire</h2><p>Communiquez ce mot de passe à <b class="notr">${esc(b.dataset.rpw)}</b> ; il pourra le changer dans « Mon compte ».</p><p class="mono notr" style="font-size:22px">${esc(x.temp)}</p><button class="btn" data-close>Fermer</button>`);}catch(e){toast(e.message);}};});
+  const te=$('#trEnd');
+  document.querySelectorAll('[data-ext]').forEach(b=>b.onclick=()=>{const base=new Date(Math.max(Date.now(),new Date(te.value+'T12:00:00').getTime()||0));base.setDate(base.getDate()+ +b.dataset.ext);te.value=base.toISOString().slice(0,10);toast('Nouvelle date : '+fmtD(base)+' — cliquez sur Enregistrer');});
+  $('#trSave').onclick=()=>{if(!te.value)return toast('Indiquez une date de fin');save('settings',{id:'launch',trialOn:$('#trOn').checked,end:te.value,promoOn:$('#prOn').checked,promoEnd:$('#prEnd').value||LAUNCH_DEF.promoEnd,candCap:+$('#prCC').value||0,candMonths:+$('#prCM').value||0,compCap:+$('#prEC').value||0,compMonths:+$('#prEM').value||0,offersFree:$('#prOF').checked,updatedAt:Date.now(),by:ME});toast('Période d\'essai mise à jour');};document.querySelectorAll('[data-verif]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.verif.split(':');const c=get('comps',id);save('comps',{...c,verif:v,verifAt:Date.now()});toast(v==='ok'?'Justificatifs validés':'Justificatifs refusés');});document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const [c,id]=b.dataset.del.split(':');remove(c,id);toast('Supprimé');});};
+
+/* =========================================================
+   Demo data (memory only, never written to the database)
+   ========================================================= */
+function seedDemo(){
+  const now=Date.now(), d=n=>new Date(now+n*864e5).toISOString().slice(0,10);
+  const sub={paidAt:now-60*864e5,expiresAt:now+300*864e5,amount:20};
+  const C=(id,name,level,city,primary,secondary,years,software,sectors,dispo,mob)=>({id:'demo-'+id,ownerId:'demo',name,level,city,primary,secondary,years,software,sectors,norms:[],email:id+'@exemple.fr',phone:'06 00 00 00 00',mobility:mob||'Nationale',sub,dispo:{active:true,...dispo},createdAt:now-30*864e5});
+  const DEMO_CV={
+   c1:"JULIEN MOREAU — Projeteur tuyauterie 3D\nLyon · Mobilité nationale\n\nEXPÉRIENCE\n2019–2026  Projeteur tuyauterie senior — bureau d'études (nucléaire)\n  · Modélisation E3D des circuits auxiliaires, extraction des isométriques\n  · Supportage, intégration avec les lots charpente et électricité\n2014–2019  Projeteur tuyauterie — ingénierie oil & gas\n  · PDMS, plans de cheminement, listes de lignes depuis P&ID\n\nLOGICIELS\nPDMS, E3D, AutoCAD, Navisworks\n\nFORMATION\nBTS Conception de produits industriels",
+   c2:"SOPHIE LAMBERT — Ingénieure calcul de flexibilité\nMarseille\n\nEXPÉRIENCE\n2018–2026  Ingénieure stress analysis — raffinage et pétrochimie\n  · Analyses de flexibilité ASME B31.3 sous Caesar II et AutoPIPE\n  · Vérification des piquages (WRC 297) et appareils à pression (PV Elite)\n\nFORMATION\nDiplôme d'ingénieur mécanique",
+   c3:"KARIM BENALI — Ingénieur structures métalliques\nNantes\n\nEXPÉRIENCE\n2011–2026  Ingénieur calcul structures — énergie et naval\n  · Dimensionnement charpentes, pipe racks et platelages (Eurocode 3)\n  · Modélisation Tekla, calculs Robot Structural Analysis et SCIA\n\nFORMATION\nIngénieur génie civil",
+   c4:"CLAIRE DUBOIS — Projeteuse installation générale\nChartres\n\nEXPÉRIENCE\n2016–2026  Projeteuse IG — pharma et agroalimentaire\n  · Implantation des équipements, plot plans, réservations\n  · Revues de maquette SP3D / Navisworks, synthèse multi-lots",
+   c5:"THOMAS GIRARD — Ingénieur conception mécanique\nGrenoble\n\nEXPÉRIENCE\n2020–2026  Ingénieur conception — équipements énergie\n  · Conception SolidWorks et Inventor, calculs éléments finis ANSYS\n  · Appareils à pression CODAP, chaudronnerie",
+   c6:"NADIA FERREIRA — Dessinatrice-projeteuse tuyauterie\nRouen\n\nEXPÉRIENCE\n2022–2026  Dessinatrice-projeteuse — chimie\n  · Isométriques et plans de supportage AutoCAD / PDMS"};
+  [C('c1','Julien Moreau','Projeteur','Lyon','TUY',['IG'],12,['PDMS','E3D','AutoCAD','Navisworks'],['Nucléaire','Oil & Gas'],{date:d(10),types:['Freelance','Portage salarial'],rate:'420 €/j',note:'Projeteur tuyauterie 3D, isométriques et supportage. Ouvert aux missions longues.'}),
+   C('c2','Sophie Lambert','Ingénieur','Marseille','TUY',['MEC'],8,['Caesar II','AutoPIPE','PV Elite'],['Chimie / pétrochimie','Oil & Gas'],{date:d(30),types:['CDI'],rate:'52 k€',note:'Ingénieure calcul de flexibilité ASME B31.3, recherche CDI en bureau d\'études.'}),
+   C('c3','Karim Benali','Ingénieur','Nantes','STR',['GC'],15,['Tekla','Robot Structural','SCIA'],['Énergie','Défense / naval'],{date:d(5),types:['Freelance'],rate:'550 €/j',note:'Dimensionnement charpentes métalliques Eurocode 3, pipe racks, platelages.'}),
+   C('c4','Claire Dubois','Projeteur','Chartres','IG',['TUY','STR'],10,['SP3D','Navisworks','AutoCAD Plant 3D'],['Pharma','Agroalimentaire'],{date:d(0),types:['CDD','Freelance'],note:'Implantation et revues de maquette, synthèse multi-lots.'},'Régionale'),
+   C('c5','Thomas Girard','Ingénieur','Grenoble','MEC',['CHA'],6,['SolidWorks','ANSYS','Inventor'],['Énergie'],{date:d(45),types:['CDI','CDD'],rate:'45 k€',note:'Conception mécanique, appareils à pression CODAP, calcul éléments finis.'}),
+   C('c6','Nadia Ferreira','Dessinateur','Rouen','TUY',['STR'],4,['AutoCAD','PDMS'],['Chimie / pétrochimie'],{date:d(15),types:['CDI','Portage salarial'],note:'Dessinatrice-projeteuse, isométriques et plans de supportage.'},'Régionale')
+  ].forEach(c=>{c.cvText=DEMO_CV[c.id.replace('demo-','')]||'';c.cvName='CV.pdf';S.demo.cands[c.id]=c;});
+  const P=(id,name,legal,website,city,sector,amt)=>({id:'demo-'+id,ownerId:'demo',name,legal,siret:'00000000000000',website,city,sector,contact:'Service RH',email:'rh@'+id+'.exemple.fr',sub:{paidAt:now-90*864e5,expiresAt:now+275*864e5,amount:amt},createdAt:now-90*864e5});
+  [P('p1','Atelier Ingénierie Rhône','SAS','https://www.exemple-rhone.fr','Lyon','Nucléaire',500),
+   P('p2','Méditerranée Process Engineering','SARL','https://www.exemple-mpe.fr','Marseille','Oil & Gas',500),
+   P('p3','B. Lefèvre Études Structures','EI','https://www.exemple-lefevre.fr','Nantes','Multi-secteurs',100)].forEach(p=>S.demo.comps[p.id]=p);
+  const O=(id,comp,title,specialty,secondary,contract,start,duration,city,remote,software,motif,project,description)=>({id:'demo-'+id,compId:'demo-'+comp,ownerId:'demo',title,specialty,secondary,contract,start:d(start),duration,city,remote,software,motif,project,description,attest:true,active:true,paidAt:now-5*864e5,expiresAt:now+25*864e5,createdAt:now-5*864e5});
+  [O('o1','p1','Projeteur tuyauterie E3D — lot nucléaire','TUY',['IG'],['Freelance','Portage salarial','CDD'],20,'18','Lyon','Hybride',['E3D','Navisworks'],'Nouveau projet / affaire','Modification de circuits auxiliaires','Modélisation 3D des circuits, extraction des isométriques, intégration du supportage, participation aux revues de maquette avec le client exploitant.'),
+   O('o2','p2','Ingénieur flexibilité tuyauterie (CDI)','TUY',['MEC'],['CDI'],35,'','Marseille','Hybride',['Caesar II'],'Création de poste (développement)','Croissance du pôle calcul','Analyses de flexibilité selon ASME B31.3, notes de calcul, échanges avec les équipes supportage et équipements. Poste créé suite à deux nouvelles affaires de raffinage.'),
+   O('o3','p3','Ingénieur structure — pipe racks','STR',['TUY'],['Freelance'],7,'6','Nantes','Sur site',['Tekla','Robot Structural'],'Surcroît d\'activité','Extension site énergie','Dimensionnement de pipe racks et passerelles selon Eurocode 3, notes de calcul et plans d\'ensemble. Mission ponctuelle liée à un pic de charge sur l\'affaire.'),
+   O('o4','p1','Projeteur installation générale','IG',['TUY','STR'],['CDD','Freelance'],10,'12','Lyon','Sur site',['SP3D','Navisworks'],'Remplacement','Bâtiment auxiliaire','Implantation des équipements, réservations, synthèse des lots tuyauterie, charpente et électricité ; préparation des revues de maquette.')
+  ].forEach(o=>S.demo.offers[o.id]=o);
+  [['cand',20,'Inscription candidat (démo)'],['cand',20,'Inscription candidat (démo)'],['comp',500,'Abonnement entreprise (démo)'],['comp',500,'Abonnement entreprise (démo)'],['comp',100,'Abonnement EI (démo)'],['offer',10,'Annonce (démo)'],['offer',10,'Annonce (démo)'],['offer',10,'Annonce (démo)'],['offer',10,'Annonce (démo)']]
+   .forEach(([kind,amount,label],i)=>{const id='demo-pay'+i;S.demo.pays[id]={id,ownerId:'demo',kind,amount,label,at:now-i*3*864e5};});
+}
+
+/* =========================================================
+   Boot
+   ========================================================= */
+function suggestLang(){
+  const bl=(navigator.language||'fr').slice(0,2).toLowerCase(); let asked=false;try{asked=localStorage.getItem('m4x_lang')!=null||localStorage.getItem('m4x_langask');}catch(e){}
+  if(asked||bl==='fr'||!SAMPLE||!LANGS.find(l=>l[0]===bl))return;
+  const b=$('#trbar');b.innerHTML=`<div class="trbar notr">🌐 <button class="btn sm" id="trYes">Translate this site into ${esc(langName(bl))}</button> <button class="btn sm ghost" id="trNo">Rester en français</button></div>`;
+  $('#trYes').onclick=()=>{b.innerHTML='';$('#langSel').value=bl;setLang(bl);};
+  $('#trNo').onclick=()=>{b.innerHTML='';try{localStorage.setItem('m4x_langask','1');}catch(e){}};
+}
+if(DRAFTS.cvText&&ui.cvText==null)ui.cvText=DRAFTS.cvText;
+if(DRAFTS.consent){ui.consent=true;ui.consentAt=DRAFTS.consent;}
+if(DRAFTS.photo)ui.photo=DRAFTS.photo;
+initLangSel();
+view=(location.hash||'').slice(1)||'accueil'; if(!VIEWS[view])view='accueil';
+render();
+(async function boot(){
+  await afterLogin();
+  const rt=new URLSearchParams(location.search).get('reset'); if(rt)resetModal(rt);
+  setInterval(()=>{if(document.visibilityState==='visible')loadData();},15000);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadData();});
+})();
+</script>
+</body>
+</html>
