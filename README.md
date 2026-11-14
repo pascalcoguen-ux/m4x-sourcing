@@ -79,6 +79,15 @@ Pour l'envoi automatique d'un lien de réinitialisation :
 3. Vérifiez `MAIL_FROM` dans `wrangler.toml` (adresse d'expédition sur votre domaine validé).
 4. Redéployez.
 
+## Étape 9 — Traduction des messages avec DeepL (facultatif, recommandé)
+
+1. Compte gratuit sur https://www.deepl.com/pro-api (offre **DeepL API Free**, 500 000 caractères par mois).
+2. Dans votre compte DeepL, onglet **Clés API** : copiez la clé d'authentification (elle ressemble à `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx:fx`).
+3. Cloudflare → projet Pages → **Settings** → **Variables and Secrets** → **Add** : Type **Secret**, nom `DEEPL_API_KEY`, valeur = la clé.
+4. **Deployments** → dernier déploiement → **⋯** → **Retry deployment**.
+
+La case « Traduire automatiquement les messages reçus » apparaît alors dans la messagerie. Chaque message n'est traduit qu'une fois (mise en cache), dans la langue choisie par le lecteur.
+
 ---
 
 ## Premiers réglages dans l'Admin
