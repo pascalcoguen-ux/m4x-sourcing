@@ -109,7 +109,7 @@ async function readData(env, user) {
   const S = await loadState(env);
   const actC = S.cands.filter(S.subOk);
   const spec = {}; for (const c of actC) spec[c.primary] = (spec[c.primary] || 0) + 1;
-  const out = { settings: [S.L], stats: { cands: S.count('cands'), comps: S.count('comps'),
+  const out = { translate: !!env.DEEPL_API_KEY, settings: [S.L], stats: { cands: S.count('cands'), comps: S.count('comps'),
     activeCands: actC.length, activeComps: S.comps.filter(S.subOk).length, spec,
     offers: S.offers.filter(S.offerOn).length, matches: S.links.filter(S.isMatch).length } };
   if (!user) { Object.assign(out, { cands: [], comps: [], offers: [], links: [], msgs: [], pays: [] }); return out; }
@@ -373,6 +373,41 @@ async function deleteAccount(env, req, user, b) {
   return json({ ok: true }, 200, { 'set-cookie': sessCookie('', 0) });
 }
 
+/* ---------------- traduction des messages (DeepL) ---------------- */
+const DEEPL_TARGET = { fr: 'FR', en: 'EN-GB', es: 'ES', de: 'DE', it: 'IT', hi: 'HI' };
+async function translateMsgs(env, user, b) {
+  const key = env.DEEPL_API_KEY;
+  if (!key) return err(503, 'Traduction non configurée');
+  const lang = String(b.lang || '');
+  const target = DEEPL_TARGET[lang]; if (!target) return err(400, 'Langue non prise en charge');
+  const ids = Array.isArray(b.ids) ? b.ids.slice(0, 50).map(String) : [];
+  // seuls les messages des discussions de l'utilisateur peuvent être traduits
+  const S = await loadState(env);
+  const mine = new Set(S.links.filter(l => S.isMatch(l) && (l.candId === 'cand-' + user.id || l.compId === 'comp-' + user.id)).map(l => l.id));
+  const msgs = (await Promise.all(ids.map(id => getDoc(env, 'msgs', id)))).filter(m => m && mine.has(m.linkId));
+  const out = {}, todo = [];
+  for (const m of msgs) {
+    const c = await getDoc(env, 'tr', lang + ':' + m.id);
+    if (c) out[m.id] = c.t; else todo.push(m);
+  }
+  if (todo.length) {
+    const host = key.trim().endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
+    const r = await fetch(host + '/v2/translate', { method: 'POST',
+      headers: { 'authorization': 'DeepL-Auth-Key ' + key.trim(), 'content-type': 'application/json' },
+      body: JSON.stringify({ text: todo.map(m => m.text), target_lang: target, preserve_formatting: true }) });
+    if (!r.ok) { console.error('DeepL', r.status, await r.text().catch(() => '')); return err(502, r.status === 403 ? 'Clé DeepL refusée' : r.status === 456 ? 'Quota DeepL atteint' : 'Traduction indisponible'); }
+    const d = await r.json();
+    for (let i = 0; i < todo.length; i++) {
+      const t = d.translations && d.translations[i];
+      const same = t && String(t.detected_source_language || '').slice(0, 2).toLowerCase() === lang;
+      const text = t && !same ? t.text : todo[i].text;
+      out[todo[i].id] = text;
+      await putDoc(env, 'tr', lang + ':' + todo[i].id, null, { t: text, at: now() });
+    }
+  }
+  return json({ tr: out });
+}
+
 /* ---------------- administration ---------------- */
 async function adminGrant(env, user, b) {
   const col = b.col === 'comps' ? 'comps' : 'cands';
@@ -428,6 +463,7 @@ export async function onRequest(context) {
       if (M === 'PUT') return writeDoc(env, user, b2, c3, body);
       if (M === 'DELETE') return deleteDoc(env, user, b2, c3);
     }
+    if (a === 'translate' && M === 'POST') return translateMsgs(env, user, body);
     if (a === 'files') {
       if (M === 'POST' && !b2) return uploadFile(env, user, req);
       if (M === 'GET' && b2) return serveFile(env, user, b2);

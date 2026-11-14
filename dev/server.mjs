@@ -22,6 +22,18 @@ const R2 = { async put(k, buf, opts) { store.set(k, { buf: Buffer.from(buf), opt
   async get(k) { const v = store.get(k); return v ? { body: v.buf, httpMetadata: v.opts?.httpMetadata } : null; },
   async delete(k) { store.delete(k); } };
 const env = { DB: D1, FILES: R2, ADMIN_EMAILS: process.env.ADMIN_EMAILS || 'admin@test.fr' };
+// Simulation de DeepL pour les tests locaux : MOCK_DEEPL=1 node dev/server.mjs
+if (process.env.MOCK_DEEPL) {
+  env.DEEPL_API_KEY = 'test:fx';
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, opt) => {
+    if (String(url).includes('deepl.com')) {
+      const b = JSON.parse(opt.body);
+      return new Response(JSON.stringify({ translations: b.text.map(t => ({ detected_source_language: 'FR', text: '[' + b.target_lang + '] ' + t })) }), { headers: { 'content-type': 'application/json' } });
+    }
+    return realFetch(url, opt);
+  };
+}
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.txt': 'text/plain' };
 
 http.createServer(async (req, res) => {

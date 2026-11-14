@@ -133,6 +133,10 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--mute)
 .avatar.sm{width:42px;height:56px;font-size:15px;border-radius:6px}
 .avatar.lock{background:repeating-linear-gradient(135deg,#eef3f6,#eef3f6 6px,#e4ecf1 6px,#e4ecf1 12px);color:#8aa2b3;font-size:18px}
 .photo-box{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fafbfc;margin-top:4px}
+.pwwrap{position:relative;display:block}
+.pwwrap input{padding-right:44px}
+.pweye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;font-size:18px;line-height:1;padding:4px 6px;border-radius:6px;color:var(--mute)}
+.pweye:hover{background:#eef1f5}
 .doc{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:#fafbfc;margin-top:4px;font-size:13px}
 .doc input[type=file]{border:0;padding:0;background:none}
 .trbar{background:var(--bluebg);border-bottom:1px solid #c8d9f0;font-size:13px;padding:6px 18px;text-align:center}
@@ -220,7 +224,7 @@ function toast(m){document.querySelectorAll('.toast').forEach(x=>x.remove());con
 /* =========================================================
    Automatic translation (site + chat) through Claude
    ========================================================= */
-let SAMPLE=null, ASSETS=null;
+let SAMPLE=null, ASSETS=null, TR_ON=false;
 let LANG='fr'; try{LANG=localStorage.getItem('m4x_lang')||'fr';}catch(e){}
 const TRC={}; // lang -> {fr: translated}
 function loadTrc(l){return (window.I18N&&window.I18N[l])||{};}
@@ -282,17 +286,14 @@ function initLangSel(){const s=$('#langSel');const narrow=window.innerWidth<=720
 const MTR={}; try{Object.assign(MTR,JSON.parse(localStorage.getItem('m4x_mtr')||'{}'));}catch(e){}
 let mtrBusy=false, AUTO_TR=true; try{AUTO_TR=localStorage.getItem('m4x_autotr')!=='0';}catch(e){}
 async function translateMsgs(msgs){
-  if(!SAMPLE||mtrBusy||!AUTO_TR)return;
-  const todo=msgs.filter(m=>MTR[m.id+'|'+LANG]==null).slice(-30); if(!todo.length)return;
+  if(!TR_ON||mtrBusy||!AUTO_TR)return;
+  const todo=msgs.filter(m=>MTR[m.id+'|'+LANG]==null).slice(-50); if(!todo.length)return;
   mtrBusy=true;
   try{
-    const res=await SAMPLE.json(`Translate each chat message into ${langName(LANG)} (code "${LANG}"). Context: recruiter / engineer conversation on an engineering recruitment platform. Keep names, numbers, technical terms, software names and standards. If a message is already in ${langName(LANG)}, return it unchanged. Return ONLY a JSON array of ${todo.length} strings in the same order.
-Messages:
-${JSON.stringify(todo.map(m=>m.text))}`,{modelTier:'quick',cache:false});
-    const arr=Array.isArray(res)?res:[];
-    todo.forEach((m,i)=>{MTR[m.id+'|'+LANG]=typeof arr[i]==='string'?arr[i]:m.text;});
+    const r=await api('POST','/api/translate',{ids:todo.map(m=>m.id),lang:LANG});
+    todo.forEach(m=>{MTR[m.id+'|'+LANG]=(r.tr&&r.tr[m.id]!=null)?r.tr[m.id]:m.text;});
     try{localStorage.setItem('m4x_mtr',JSON.stringify(MTR));}catch(e){}
-  }catch(e){console.warn(e);if(e&&e.code==='not_granted'){AUTO_TR=false;}}
+  }catch(e){console.warn(e);todo.forEach(m=>{MTR[m.id+'|'+LANG]=m.text;});}
   mtrBusy=false; if(view==='matchs')renderChatOnly(true);
 }
 function luhnSiret(s){s=s.replace(/\s/g,'');if(!/^\d{14}$/.test(s))return false;let sum=0;for(let i=0;i<14;i++){let n=+s[13-i];if(i%2){n*=2;if(n>9)n-=9;}sum+=n;}return sum%10===0||s.startsWith('356000000');}
@@ -352,7 +353,7 @@ async function api(method,url,body,isForm){
 async function loadData(){
   try{const d=await api('GET','/api/data');
     COLS.forEach(c=>{const o={};(d[c]||[]).forEach(x=>{o[x.id]=x;});S.live[c]=o;});
-    STATS=d.stats||null;ADMIN_MSGS=d.msgCount||0;
+    STATS=d.stats||null;ADMIN_MSGS=d.msgCount||0;TR_ON=!!d.translate;
   }catch(e){console.warn(e);}
   S.loaded=true;render();
 }
@@ -535,7 +536,17 @@ async function uploadDoc(file,kind){
 const docLink = (d,label) => d&&d.id?`<a href="${esc(d.url||('/api/files/'+d.id))}" target="_blank" rel="noopener">📄 ${esc(label||d.name)}</a>`:'';
 function recordPay(){}
 
-function modal(html,wide){$('#modal').innerHTML=`<div class="modal-bg"><div class="modal${wide?' wide':''}">${html}</div></div>`;translateDom();$('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);$('#modal .modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))closeModal();};}
+function pwEyes(root){
+  (root||document).querySelectorAll('input[type=password]:not([data-eye])').forEach(inp=>{
+    inp.setAttribute('data-eye','1');
+    const w=document.createElement('span');w.className='pwwrap';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+    const b=document.createElement('button');b.type='button';b.className='pweye notr';b.textContent='👁';
+    const lab=()=>{const t=tr(inp.type==='password'?'Afficher le mot de passe':'Masquer le mot de passe');b.title=t;b.setAttribute('aria-label',t);};lab();
+    b.onclick=()=>{inp.type=inp.type==='password'?'text':'password';b.textContent=inp.type==='password'?'👁':'🙈';lab();inp.focus();};
+    w.appendChild(b);
+  });
+}
+function modal(html,wide){$('#modal').innerHTML=`<div class="modal-bg"><div class="modal${wide?' wide':''}">${html}</div></div>`;pwEyes($('#modal'));translateDom();$('#modal').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeModal);$('#modal .modal-bg').onclick=e=>{if(e.target.classList.contains('modal-bg'))closeModal();};}
 function closeModal(){$('#modal').innerHTML='';}
 
 /* =========================================================
@@ -566,6 +577,7 @@ function render(){
   $('#app').innerHTML=banners()+f()+footer();
   restoreForms();
   bind[view]&&bind[view]();
+  pwEyes($('#app'));
   translateDom();
   if(keep&&document.getElementById(keep)){const el=document.getElementById(keep);el.focus();try{if(pos!=null)el.setSelectionRange(pos,pos);}catch(e){}}
 }
@@ -609,7 +621,7 @@ function vHome(){
   return `
   <section class="hero"><div class="grid-bg"></div>
     <h1>Les bons profils d'ingénierie, au bon moment.</h1>
-    <p>La plateforme qui met en relation ingénieurs, projeteurs, entreprises et cabinets de recrutement en <b>tuyauterie, structures &amp; charpente, mécanique et installation générale</b>. Le CV est analysé automatiquement, le matching fait le reste.<br>${SAMPLE?'La messagerie traduit chaque échange dans votre langue.':'La messagerie intégrée vous met directement en relation.'}</p>
+    <p>La plateforme qui met en relation ingénieurs, projeteurs, entreprises et cabinets de recrutement en <b>tuyauterie, structures &amp; charpente, mécanique et installation générale</b>. Le CV est analysé automatiquement, le matching fait le reste.<br>${TR_ON?'La messagerie traduit chaque échange dans votre langue.':'La messagerie intégrée vous met directement en relation.'}</p>
     ${trialActive()?`<div style="display:inline-block;background:var(--acc);color:#fff;border-radius:10px;padding:12px 18px;margin:6px 0 4px;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.2)">🎉 <b>Offre de lancement : inscription gratuite jusqu'au ${fmtD(trialEndTs())}</b><br><span style="font-size:13px;opacity:.95">Candidats, entreprises et cabinets : toutes les fonctions et les annonces sont gratuites pendant la période d'essai. Aucun moyen de paiement demandé. L'inscription ne vous engage aucunement vers un abonnement.<br><b>La période d\'essai sera prolongée aussi longtemps que nécessaire, le temps du démarrage du site.</b></span></div>`:''}
     ${promoBlock()}
     <div class="row" style="max-width:520px;margin-top:18px">
@@ -1355,14 +1367,14 @@ function chatPane(){
    <div class="chat-m" id="chatM"><div class="msg sys">Match le ${fmtD(Math.max(l.candAt||0,l.compAt||0))} — vous pouvez échanger librement.</div>
    ${msgs.map(m=>{const mine=m.side===side;const t=!mine&&AUTO_TR?MTR[m.id+'|'+LANG]:null;const diff=t&&t.trim()!==m.text.trim();
      return `<div class="msg notr ${mine?'me':''}">${esc(diff?t:m.text)}${diff?`<span class="orig">${esc(m.text)}</span>`:''}<span class="t">${fmtT(m.at)}${diff?' · '+esc(tr('traduit automatiquement')):''}</span></div>`;}).join('')}</div>
-${SAMPLE?`   <div class="small" style="padding:6px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><label class="switch"><input type="checkbox" id="autoTr" ${AUTO_TR?'checked':''} ${SAMPLE?'':'disabled'}> Traduire automatiquement les messages reçus en <span class="notr">&nbsp;${esc(langName(LANG))}</span></label>${SAMPLE?'':'<span class="muted">Traduction indisponible dans cette vue</span>'}</div>`:''}
+${TR_ON?`   <div class="small" style="padding:6px 12px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><label class="switch"><input type="checkbox" id="autoTr" ${AUTO_TR?'checked':''}> Traduire automatiquement les messages reçus en <span class="notr">&nbsp;${esc(langName(LANG))}</span></label><span class="muted">Traduction DeepL</span></div>`:''}
    <form class="chat-f" id="chatF"><input id="chatIn" placeholder="Votre message…" autocomplete="off" value="${esc(ui.draft||'')}"><button class="btn acc">Envoyer</button></form>`;
 }
 function renderChatOnly(fromTr){const r=$('#chatR');if(!r){ui.typing=false;return render();}const wasTyping=ui.typing;r.innerHTML=chatPane();bindChat();translateDom();const i=$('#chatIn');if(i&&wasTyping){i.focus();i.setSelectionRange(i.value.length,i.value.length);}renderNav();}
 function bindChat(){
   const m=$('#chatM');if(m)m.scrollTop=m.scrollHeight;
   const at=$('#autoTr');if(at)at.onchange=()=>{AUTO_TR=at.checked;try{localStorage.setItem('m4x_autotr',AUTO_TR?'1':'0');}catch(e){}renderChatOnly();};
-  const l=get('links',ui.chat);if(l&&AUTO_TR&&SAMPLE){const side=mySide(l);translateMsgs(all('msgs').filter(x=>x.linkId===l.id&&x.side!==side));}
+  const l=get('links',ui.chat);if(l&&AUTO_TR&&TR_ON){const side=mySide(l);translateMsgs(all('msgs').filter(x=>x.linkId===l.id&&x.side!==side));}
   const f=$('#chatF');if(!f)return;
   const i=$('#chatIn');i.oninput=()=>{ui.draft=i.value;};i.onfocus=()=>{ui.typing=true;};i.onblur=()=>{setTimeout(()=>{ui.typing=false;},150);};
   f.onsubmit=e=>{e.preventDefault();const t=i.value.trim();if(!t)return;const l=get('links',ui.chat);
